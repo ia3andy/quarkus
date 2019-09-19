@@ -2,6 +2,7 @@ package io.quarkus.deployment.logging;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 import org.jboss.logmanager.EmbeddedConfigurator;
@@ -72,8 +73,11 @@ public final class LoggingResourceProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void setupLoggingRuntimeInit(LoggingSetupRecorder recorder, LogConfig log) {
-        recorder.initializeLogging(log);
+    void setupLoggingRuntimeInit(LoggingSetupRecorder recorder, LogConfig log,
+            List<CustomLogHandlerBuildItem> customLogHandlerBuildItems) {
+        final List<Handler> customHandlers = customLogHandlerBuildItems.stream().map(CustomLogHandlerBuildItem::getHandler)
+                .collect(Collectors.toList());
+        recorder.initializeLogging(log, customHandlers);
     }
 
     @BuildStep

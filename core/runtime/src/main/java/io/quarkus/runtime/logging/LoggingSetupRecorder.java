@@ -62,7 +62,7 @@ public class LoggingSetupRecorder {
     public LoggingSetupRecorder() {
     }
 
-    public void initializeLogging(LogConfig config) {
+    public void initializeLogging(final LogConfig config, final List<Handler> customHandlers) {
         final Map<String, CategoryConfig> categories = config.categories;
         final LogContext logContext = LogContext.getLogContext();
         final Logger rootLogger = logContext.getLogger("");
@@ -81,7 +81,8 @@ public class LoggingSetupRecorder {
         for (Entry<String, CleanupFilterConfig> entry : filters.entrySet()) {
             filterElements.add(new LogCleanupFilterElement(entry.getKey(), entry.getValue().ifStartsWith));
         }
-        ArrayList<Handler> handlers = new ArrayList<>(3);
+        ArrayList<Handler> handlers = new ArrayList<>(customHandlers.size() + 3);
+        handlers.addAll(customHandlers);
         if (config.console.enable) {
             errorManager = configureConsoleHandler(config.console, errorManager, filterElements, handlers);
         }
@@ -93,6 +94,8 @@ public class LoggingSetupRecorder {
         if (config.syslog.enable) {
             configureSyslogHandler(config.syslog, errorManager, filterElements, handlers);
         }
+
+        configureCustomHandlers(customHandlers, errorManager, filterElements, handlers);
 
         InitialConfigurator.DELAYED_HANDLER.setHandlers(handlers.toArray(EmbeddedConfigurator.NO_HANDLERS));
     }
@@ -132,11 +135,7 @@ public class LoggingSetupRecorder {
         handler.setErrorManager(errorManager);
         handler.setFilter(new LogCleanupFilter(filterElements));
         if (config.async.enable) {
-            final AsyncHandler asyncHandler = new AsyncHandler(config.async.queueLength);
-            asyncHandler.setOverflowAction(config.async.overflow);
-            asyncHandler.addHandler(handler);
-            asyncHandler.setLevel(config.level);
-            handlers.add(asyncHandler);
+            handlers.add(createAsyncHandler(config.async, config.level, handler));
         } else {
             handlers.add(handler);
         }
@@ -178,11 +177,7 @@ public class LoggingSetupRecorder {
         handler.setLevel(config.level);
         handler.setFilter(new LogCleanupFilter(filterElements));
         if (config.async.enable) {
-            final AsyncHandler asyncHandler = new AsyncHandler(config.async.queueLength);
-            asyncHandler.setOverflowAction(config.async.overflow);
-            asyncHandler.addHandler(handler);
-            asyncHandler.setLevel(config.level);
-            handlers.add(asyncHandler);
+            handlers.add(createAsyncHandler(config.async, config.level, handler));
         } else {
             handlers.add(handler);
         }
@@ -206,17 +201,30 @@ public class LoggingSetupRecorder {
             handler.setErrorManager(errorManager);
             handler.setFilter(new LogCleanupFilter(filterElements));
             if (config.async.enable) {
-                final AsyncHandler asyncHandler = new AsyncHandler(config.async.queueLength);
-                asyncHandler.setOverflowAction(config.async.overflow);
-                asyncHandler.addHandler(handler);
-                asyncHandler.setLevel(config.level);
-                handlers.add(asyncHandler);
+                handlers.add(createAsyncHandler(config.async, config.level, handler));
             } else {
                 handlers.add(handler);
             }
         } catch (IOException e) {
             errorManager.error("Failed to create syslog handler", e, ErrorManager.OPEN_FAILURE);
         }
+    }
+
+    private void configureCustomHandlers(final List<Handler> customHandlers, final ErrorManager errorManager,
+            final List<LogCleanupFilterElement> filterElements, final ArrayList<Handler> handlers) {
+        for (Handler handler : customHandlers) {
+            handler.setFilter(new LogCleanupFilter(filterElements));
+            handler.setErrorManager(errorManager);
+            handlers.add(handler);
+        }
+    }
+
+    private AsyncHandler createAsyncHandler(AsyncConfig asyncConfig, Level level, Handler handler) {
+        final AsyncHandler asyncHandler = new AsyncHandler(asyncConfig.queueLength);
+        asyncHandler.setOverflowAction(asyncConfig.overflow);
+        asyncHandler.addHandler(handler);
+        asyncHandler.setLevel(level);
+        return asyncHandler;
     }
 
     public void initializeLoggingForImageBuild() {
