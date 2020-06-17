@@ -1,12 +1,11 @@
-package io.quarkus.devtools.project.buildfile;
-
-import static io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.addDependencyInModel;
+package io.quarkus.devtools.project.codegen.buildtool;
 
 import io.quarkus.bootstrap.model.AppArtifactCoords;
 import io.quarkus.devtools.project.QuarkusProject;
 import io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.Model;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.tools.ToolsUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +19,9 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public final class GradleBuildFilesCreator {
+import static io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.addDependencyInModel;
+
+public final class GradleGenerator {
 
     private static final String BUILD_GRADLE_PATH = "build.gradle";
     private static final String SETTINGS_GRADLE_PATH = "settings.gradle";
@@ -29,12 +30,12 @@ public final class GradleBuildFilesCreator {
 
     private AtomicReference<Model> modelReference = new AtomicReference<>();
 
-    public GradleBuildFilesCreator(QuarkusProject quarkusProject) {
+    public GradleGenerator(QuarkusProject quarkusProject) {
         this.quarkusProject = quarkusProject;
     }
 
-    public void create(String groupId, String artifactId, String version,
-            Properties properties, List<AppArtifactCoords> extensions) throws IOException {
+    public void generate(String groupId, String artifactId, String version,
+                         Properties properties, List<AppArtifactCoords> extensions) throws IOException {
         createSettingsContent(artifactId);
         createBuildContent(groupId, version);
         createProperties();

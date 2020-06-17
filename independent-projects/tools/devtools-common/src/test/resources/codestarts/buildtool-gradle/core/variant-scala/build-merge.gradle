@@ -1,0 +1,13 @@
+plugins {
+    id 'scala'
+}
+
+dependencies {
+    implementation 'org.scala-lang:scala-library:${version.scala}'
+}
+
+compileScala {
+    scalaCompileOptions.encoding = 'UTF-8'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

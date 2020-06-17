@@ -1,0 +1,4 @@
+--
+name: java
+type: variant
+default: true

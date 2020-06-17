@@ -1,0 +1,13 @@
+--
+name: resteasy
+extension: io.quarkus:quarkus-resteasy
+data:
+  local:
+    rest:
+      path: "/hello"
+      response: "hello"
+core:
+  base:
+    testDependencies:
+      - io.rest-assured:rest-assured
+

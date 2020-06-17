@@ -1,0 +1,4 @@
+--
+name: yaml
+type: config
+extension: io.quarkus:quarkus-config-yaml

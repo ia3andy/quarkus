@@ -35,6 +35,10 @@
             <artifactId>quarkus-devtools-utilities</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus.qute</groupId>
+            <artifactId>qute-generator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-platform-descriptor-api</artifactId>
         </dependency>

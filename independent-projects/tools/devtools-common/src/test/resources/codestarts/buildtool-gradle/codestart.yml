@@ -1,0 +1,15 @@
+--
+name: gradle
+type: buildtool
+data:
+  local:
+    quarkus:
+      plugin:
+        id: io.quarkus
+    version:
+      kotlin: 1.3.72
+      scala: 2.12.8
+  global:
+    buildtool:
+      build-dir: build
+
