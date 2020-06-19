@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.contentOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import io.quarkus.devtools.project.BuildTool;
@@ -15,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -24,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.apache.maven.model.Model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +33,7 @@ public class CreateProjectTest extends PlatformAwareTestBase {
     @Test
     public void create() throws Exception {
         final File file = new File("target/basic-rest");
-        delete(file);
+        ProjectTestUtil.delete(file);
         createProject(file, "io.quarkus", "basic-rest", "1.0.0-SNAPSHOT");
 
         final File gitignore = new File(file, ".gitignore");
@@ -47,7 +45,7 @@ public class CreateProjectTest extends PlatformAwareTestBase {
     @Test
     public void createGradle() throws Exception {
         final File file = new File("target/basic-rest-gradle");
-        delete(file);
+        ProjectTestUtil.delete(file);
         createProject(BuildTool.GRADLE, file, "io.quarkus", "basic-rest", "1.0.0-SNAPSHOT");
 
         final File gitignore = new File(file, ".gitignore");
@@ -64,7 +62,7 @@ public class CreateProjectTest extends PlatformAwareTestBase {
     @Test
     public void createOnTopOfExisting() throws Exception {
         final File testDir = new File("target/existing");
-        delete(testDir);
+        ProjectTestUtil.delete(testDir);
         testDir.mkdirs();
 
         Model model = new Model();
@@ -108,20 +106,6 @@ public class CreateProjectTest extends PlatformAwareTestBase {
         }).collect(Collectors.toList());
         executorService.invokeAll(collect);
         latch.await();
-    }
-
-    public static void delete(final File file) throws IOException {
-
-        if (file.exists()) {
-            try (Stream<Path> stream = Files.walk(file.toPath())) {
-                stream.sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-            }
-        }
-
-        Assertions.assertFalse(
-                Files.exists(file.toPath()), "Directory still exists");
     }
 
     private void createProject(final File file, String groupId, String artifactId, String version)

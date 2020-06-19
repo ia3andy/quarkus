@@ -1,6 +1,9 @@
 package io.quarkus.platform.descriptor.loader.json;
 
+import static io.quarkus.platform.descriptor.loader.json.ResourceLoaders.getResourceNameWalker;
+
 import io.quarkus.platform.descriptor.ResourceInputStreamConsumer;
+import io.quarkus.platform.descriptor.ResourceNamesConsumer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
@@ -26,6 +29,20 @@ public class ZipResourceLoader implements ResourceLoader {
             try (InputStream is = Files.newInputStream(p)) {
                 return consumer.consume(is);
             }
+        }
+    }
+
+    @Override
+    public <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
+        try (FileSystem fs = FileSystems.newFileSystem(zip, (ClassLoader) null)) {
+            final Path dirPath = fs.getPath("/", name);
+            if (!Files.exists(dirPath)) {
+                throw new IOException("Failed to locate " + name + " in " + zip);
+            }
+            if (!Files.isDirectory(dirPath)) {
+                throw new IOException("Resource " + name + " is not a directory on the classpath");
+            }
+            return consumer.consume(getResourceNameWalker(name, dirPath));
         }
     }
 }

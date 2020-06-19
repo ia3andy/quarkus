@@ -1,5 +1,6 @@
 package io.quarkus.devtools.commands;
 
+import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import io.quarkus.devtools.project.QuarkusProject;
@@ -16,7 +17,7 @@ class RemoveMavenExtensionsTest extends AbstractRemoveExtensionsTest<Model> {
     @Override
     protected Model createProject() throws IOException, QuarkusCommandException {
         final File pom = getProjectPath().resolve("pom.xml").toFile();
-        CreateProjectTest.delete(getProjectPath().toFile());
+        ProjectTestUtil.delete(getProjectPath().toFile());
         new CreateProject(getProjectPath(), getPlatformDescriptor())
                 .groupId("org.acme")
                 .artifactId("add-maven-extension-test")

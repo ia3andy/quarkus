@@ -7,6 +7,7 @@ import io.quarkus.dependencies.Category;
 import io.quarkus.dependencies.Extension;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.ResourceInputStreamConsumer;
+import io.quarkus.platform.descriptor.ResourceNamesConsumer;
 import io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoader;
 import io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoaderContext;
 import java.io.IOException;
@@ -78,6 +79,11 @@ public class TestJsonPlatformDescriptorLoader implements QuarkusJsonPlatformDesc
 
             @Override
             public <T> T loadResource(String name, ResourceInputStreamConsumer<T> consumer) throws IOException {
+                return null;
+            }
+
+            @Override
+            public <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
                 return null;
             }
         };

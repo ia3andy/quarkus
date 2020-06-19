@@ -1,5 +1,6 @@
 package io.quarkus.devtools.commands;
 
+import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import io.quarkus.devtools.project.BuildTool;
@@ -20,7 +21,7 @@ class AddGradleExtensionsTest extends AbstractAddExtensionsTest<List<String>> {
 
     @Override
     protected List<String> createProject() throws IOException, QuarkusCommandException {
-        CreateProjectTest.delete(getProjectPath().toFile());
+        ProjectTestUtil.delete(getProjectPath().toFile());
         new CreateProject(getProjectPath(), getPlatformDescriptor())
                 .buildTool(BuildTool.GRADLE)
                 .groupId("org.acme")

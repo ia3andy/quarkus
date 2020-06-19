@@ -1,5 +1,6 @@
 package io.quarkus.devtools.commands;
 
+import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import io.quarkus.devtools.project.BuildTool;
@@ -17,7 +18,7 @@ class AddMavenExtensionsTest extends AbstractAddExtensionsTest<Model> {
     @Override
     protected Model createProject() throws IOException, QuarkusCommandException {
         final File pom = getProjectPath().resolve("pom.xml").toFile();
-        CreateProjectTest.delete(getProjectPath().toFile());
+        ProjectTestUtil.delete(getProjectPath().toFile());
         new CreateProject(getProjectPath(), getPlatformDescriptor())
                 .buildTool(BuildTool.MAVEN)
                 .groupId("org.acme")

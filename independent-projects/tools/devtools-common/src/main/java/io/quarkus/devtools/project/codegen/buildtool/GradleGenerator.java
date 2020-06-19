@@ -1,11 +1,12 @@
 package io.quarkus.devtools.project.codegen.buildtool;
 
+import static io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.addDependencyInModel;
+
 import io.quarkus.bootstrap.model.AppArtifactCoords;
 import io.quarkus.devtools.project.QuarkusProject;
 import io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.Model;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.tools.ToolsUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,8 +19,6 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import static io.quarkus.devtools.project.buildfile.AbstractGradleBuildFile.addDependencyInModel;
 
 public final class GradleGenerator {
 
@@ -35,7 +34,7 @@ public final class GradleGenerator {
     }
 
     public void generate(String groupId, String artifactId, String version,
-                         Properties properties, List<AppArtifactCoords> extensions) throws IOException {
+            Properties properties, List<AppArtifactCoords> extensions) throws IOException {
         createSettingsContent(artifactId);
         createBuildContent(groupId, version);
         createProperties();

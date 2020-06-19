@@ -6,8 +6,8 @@ import static org.apache.commons.io.FileUtils.contentEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.CreateProject;
-import io.quarkus.devtools.commands.CreateProjectTest;
 import io.quarkus.devtools.commands.PlatformAwareTestBase;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
@@ -28,7 +28,7 @@ class QuarkusProjectCompressTest extends PlatformAwareTestBase {
     public void createZip() throws Exception {
         // Given a Quarkus project
         final Path testDir = Paths.get("target/zip");
-        CreateProjectTest.delete(testDir.toFile());
+        ProjectTestUtil.delete(testDir.toFile());
         testDir.toFile().mkdirs();
         Path zip = testDir.resolve("project.zip");
 
@@ -49,7 +49,7 @@ class QuarkusProjectCompressTest extends PlatformAwareTestBase {
     public void createZipWithParentFolder() throws Exception {
         // Given a Quarkus project
         final Path testDir = Paths.get("target/zip");
-        CreateProjectTest.delete(testDir.toFile());
+        ProjectTestUtil.delete(testDir.toFile());
         testDir.toFile().mkdirs();
         Path zip = testDir.resolve("project.zip");
 

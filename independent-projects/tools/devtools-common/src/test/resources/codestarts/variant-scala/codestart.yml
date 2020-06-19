@@ -1,4 +1,0 @@
---
-name: scala
-type: variant
-extension: io.quarkus:quarkus-scala
