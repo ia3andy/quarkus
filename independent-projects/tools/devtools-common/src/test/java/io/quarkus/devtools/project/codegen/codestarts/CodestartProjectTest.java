@@ -33,7 +33,7 @@ class CodestartProjectTest extends PlatformAwareTestBase {
     void processCodestartProjectEmpty() throws IOException {
         final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
                 new CodestartInput(Collections.emptyList(), Collections.emptyMap()));
-        Codestarts.processCodestartProject(getPlatformDescriptor(), Engine.builder().addDefaults().build(), codestartProject,
+        Codestarts.processCodestartProject(getPlatformDescriptor(), codestartProject,
                 projectPath.resolve("empty"));
     }
 
@@ -42,7 +42,7 @@ class CodestartProjectTest extends PlatformAwareTestBase {
         final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
                 new CodestartInput(Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-resteasy")),
                         Collections.emptyMap()));
-        Codestarts.processCodestartProject(getPlatformDescriptor(), Engine.builder().addDefaults().build(), codestartProject,
+        Codestarts.processCodestartProject(getPlatformDescriptor(), codestartProject,
                 projectPath.resolve("resteasy"));
     }
 }

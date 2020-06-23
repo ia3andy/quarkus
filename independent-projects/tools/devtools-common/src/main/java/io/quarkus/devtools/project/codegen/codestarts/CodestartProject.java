@@ -2,9 +2,13 @@ package io.quarkus.devtools.project.codegen.codestarts;
 
 import static io.quarkus.devtools.project.codegen.codestarts.Codestarts.mergeMaps;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class CodestartProject {
@@ -70,5 +74,19 @@ class CodestartProject {
         final Stream<Map<String, Object>> codestartsGlobal = getAllCodestartsStream()
                 .map(c -> c.getSpec().getData().getShared());
         return mergeMaps(Stream.concat(codestartsGlobal, Stream.of(getInputData())));
+    }
+
+    public Map<String, Object> getDepsData(boolean includeExample) {
+        final Map<String, List<CodestartSpec.CodestartDep>> depsData = new HashMap<>();
+        depsData.put("dependencies", new ArrayList<>());
+        depsData.put("testDependencies", new ArrayList<>());
+        getAllCodestartsStream()
+            .map(Codestart::getSpec)
+            .flatMap(s -> Stream.of(s.getCore(), includeExample ? s.getExample() : new CodestartSpec.CodeStartDeps(null, null)))
+            .forEach(d -> {
+                depsData.get("dependencies").addAll(d.getDependencies());
+                depsData.get("testDependencies").addAll(d.getTestDependencies());
+            });
+        return Collections.unmodifiableMap(depsData);
     }
 }

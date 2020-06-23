@@ -13,7 +13,7 @@ data:
   shared:
     buildtool:
       build-dir: target
-    gitignore: >
+    gitignore: |
       #Maven
       target/
       pom.xml.tag

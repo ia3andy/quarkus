@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.fabric8.maven.Maven;
 import io.fabric8.maven.merge.SmartModelMerger;
 import io.quarkus.dependencies.Extension;
+import io.quarkus.devtools.project.QuarkusProject;
 import io.quarkus.devtools.project.extensions.Extensions;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.qute.Engine;
@@ -26,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import io.quarkus.qute.ReflectionValueResolver;
 import org.apache.maven.model.Model;
 
 public class Codestarts {
@@ -74,19 +78,27 @@ public class Codestarts {
                 }).collect(Collectors.toList());
     }
 
-    static void processCodestartProject(final QuarkusPlatformDescriptor descriptor, final Engine engine,
+    static void processCodestartProject(final QuarkusPlatformDescriptor descriptor,
             final CodestartProject codestartProject, final Path targetDirectory) throws IOException {
         final String languageName = codestartProject.getLanguageName();
         final Map<String, Object> sharedData = codestartProject.getSharedData();
+        final Engine engine = Engine.builder().addDefaults()
+            .addValueResolver(new ReflectionValueResolver())
+            .build();
+        // TODO add codestarts dependencies
+
+
+        final Map<String, Object> data = mergeMaps(Stream.of(sharedData, codestartProject.getDepsData(true)));
+        // TODO support yaml config
         codestartProject.getAllCodestartsStream()
-                .forEach(c -> processCodestart(descriptor, engine, c, languageName, targetDirectory, sharedData));
+                .forEach(c -> processCodestart(descriptor, engine, c, languageName, targetDirectory, data));
     }
 
     static void processCodestart(final QuarkusPlatformDescriptor descriptor, final Engine engine, final Codestart codestart,
-            final String language, final Path targetDirectory, final Map<String, Object> sharedData) {
+            final String language, final Path targetDirectory, final Map<String, Object> data) {
         try {
             descriptor.loadResourcePath(codestart.getResourceName(), p -> resolveDirectoriesToProcessAsStream(p, language))
-                    .forEach(p -> processCodestartCodeDirectory(engine, p, targetDirectory, mergeData(codestart, sharedData)));
+                    .forEach(p -> processCodestartCodeDirectory(engine, p, targetDirectory, mergeData(codestart, data)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -154,7 +166,7 @@ public class Codestarts {
             throw new IllegalStateException(
                     "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
         }
-        final String renderedContent = processQuteContent(engine, path, data);
+        final String renderedContent = "\n" + processQuteContent(engine, path, data);
         Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.APPEND);
     }
 
@@ -196,12 +208,11 @@ public class Codestarts {
                 .orElseThrow(() -> new IllegalStateException("No matching codestart of type " + type + " has been found"));
     }
 
-    private static Map<String, Object> mergeData(final Codestart codestart, final Map<String, Object> sharedData) {
-        return mergeMaps(Stream.of(codestart.getSpec().getData().getLocal(), sharedData));
+    private static Map<String, Object> mergeData(final Codestart codestart, final Map<String, Object> data) {
+        return mergeMaps(Stream.of(codestart.getSpec().getData().getLocal(), data));
     }
 
     static Map<String, Object> mergeMaps(final Stream<Map<String, Object>> stream) {
-
         // TODO we will need a deep merge here
         return stream
                 .map(Map::entrySet)

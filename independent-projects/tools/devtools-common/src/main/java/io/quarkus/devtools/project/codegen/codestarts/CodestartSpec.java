@@ -37,8 +37,8 @@ public class CodestartSpec {
         this.type = type != null ? type : Type.CODESTART;
         this.data = data != null ? data : new CodeStartData(null, null);
         this.isDefault = isDefault;
-        this.core = core;
-        this.example = example;
+        this.core = core != null ? core : new CodeStartDeps(null, null);
+        this.example = example != null ? example : new CodeStartDeps(null, null);
     }
 
     public String getName() {
@@ -144,21 +144,21 @@ public class CodestartSpec {
     }
 
     public static final class CodeStartDeps {
-        private final List<String> dependencies;
-        private final List<String> testDependencies;
+        private final List<CodestartDep> dependencies;
+        private final List<CodestartDep> testDependencies;
 
         @JsonCreator
-        public CodeStartDeps(@JsonProperty("dependencies") List<String> dependencies,
-                @JsonProperty("testDependencies") List<String> testDependencies) {
+        public CodeStartDeps(@JsonProperty("dependencies") List<CodestartDep> dependencies,
+                @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
             this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
             this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
         }
 
-        public List<String> getDependencies() {
+        public List<CodestartDep> getDependencies() {
             return dependencies;
         }
 
-        public List<String> getTestDependencies() {
+        public List<CodestartDep> getTestDependencies() {
             return testDependencies;
         }
 
@@ -185,6 +185,34 @@ public class CodestartSpec {
             sb.append(", testDependencies=").append(testDependencies);
             sb.append('}');
             return sb.toString();
+        }
+    }
+
+    public static class CodestartDep {
+
+        private final String groupId;
+        private final String artifactId;
+
+        public CodestartDep(final String expression) {
+            final String[] split = expression.split(":");
+            if(split.length != 2) {
+                throw new IllegalArgumentException("Invalid CodestartDep expression: " + expression);
+            }
+            this.groupId = split[0];
+            this.artifactId = split[1];
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        @Override
+        public String toString() {
+            return groupId + ":" + artifactId;
         }
     }
 }

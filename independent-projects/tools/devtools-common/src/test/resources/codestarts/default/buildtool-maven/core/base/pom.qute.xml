@@ -33,12 +33,25 @@
     </dependencyManagement>
 
     <dependencies>
+        {#each dependencies}
+        <dependency>
+            <groupId>{it.groupId}</groupId>
+            <artifactId>{it.artifactId}</artifactId>
+        </dependency>
+        {/each}
         <!-- Test dependencies -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        {#each testDependencies}
+        <dependency>
+            <groupId>{it.groupId}</groupId>
+            <artifactId>{it.artifactId}</artifactId>
+            <scope>test</scope>
+        </dependency>
+        {/each}
     </dependencies>
 
     <build>
