@@ -1,7 +1,11 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
+import static io.quarkus.devtools.project.codegen.codestarts.Codestarts.mergeMaps;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 class CodestartProject {
 
@@ -44,5 +48,27 @@ class CodestartProject {
 
     public Map<String, Object> getInputData() {
         return inputData;
+    }
+
+    public List<Codestart> getDefaultCodestart() {
+        return Arrays.asList(
+                this.getProject(),
+                this.getBuildTool(),
+                this.getLanguage(),
+                this.getConfig());
+    }
+
+    public Stream<Codestart> getAllCodestartsStream() {
+        return Stream.concat(getDefaultCodestart().stream(), getCodestarts().stream());
+    }
+
+    public String getLanguageName() {
+        return language.getSpec().getName();
+    }
+
+    public Map<String, Object> getSharedData() {
+        final Stream<Map<String, Object>> codestartsGlobal = getAllCodestartsStream()
+                .map(c -> c.getSpec().getData().getShared());
+        return mergeMaps(Stream.concat(codestartsGlobal, Stream.of(getInputData())));
     }
 }

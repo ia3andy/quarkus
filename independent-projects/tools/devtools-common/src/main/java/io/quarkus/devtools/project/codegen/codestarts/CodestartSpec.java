@@ -1,12 +1,13 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 public class CodestartSpec {
 
@@ -34,7 +35,7 @@ public class CodestartSpec {
             @JsonProperty("example") CodeStartDeps example) {
         this.name = requireNonNull(name, "name is required");
         this.type = type != null ? type : Type.CODESTART;
-        this.data = data;
+        this.data = data != null ? data : new CodeStartData(null, null);
         this.isDefault = isDefault;
         this.core = core;
         this.example = example;
@@ -99,21 +100,21 @@ public class CodestartSpec {
 
     public static final class CodeStartData {
         private final Map<String, Object> local;
-        private final Map<String, Object> global;
+        private final Map<String, Object> shared;
 
         @JsonCreator
         public CodeStartData(@JsonProperty("local") Map<String, Object> local,
-                @JsonProperty("global") Map<String, Object> global) {
-            this.local = local;
-            this.global = global;
+                @JsonProperty("shared") Map<String, Object> shared) {
+            this.local = local != null ? local : Collections.emptyMap();
+            this.shared = shared != null ? shared : Collections.emptyMap();
         }
 
         public Map<String, Object> getLocal() {
             return local;
         }
 
-        public Map<String, Object> getGlobal() {
-            return global;
+        public Map<String, Object> getShared() {
+            return shared;
         }
 
         @Override
@@ -124,19 +125,19 @@ public class CodestartSpec {
                 return false;
             CodeStartData that = (CodeStartData) o;
             return Objects.equals(local, that.local) &&
-                    Objects.equals(global, that.global);
+                    Objects.equals(shared, that.shared);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(local, global);
+            return Objects.hash(local, shared);
         }
 
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder("CodeStartData{");
             sb.append("local=").append(local);
-            sb.append(", global=").append(global);
+            sb.append(", global=").append(shared);
             sb.append('}');
             return sb.toString();
         }
@@ -149,8 +150,8 @@ public class CodestartSpec {
         @JsonCreator
         public CodeStartDeps(@JsonProperty("dependencies") List<String> dependencies,
                 @JsonProperty("testDependencies") List<String> testDependencies) {
-            this.dependencies = dependencies;
-            this.testDependencies = testDependencies;
+            this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
+            this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
         }
 
         public List<String> getDependencies() {

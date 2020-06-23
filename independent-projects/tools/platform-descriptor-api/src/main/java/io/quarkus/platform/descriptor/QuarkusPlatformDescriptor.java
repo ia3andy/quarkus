@@ -26,7 +26,7 @@ public interface QuarkusPlatformDescriptor {
 
     <T> T loadResource(String name, ResourceInputStreamConsumer<T> consumer) throws IOException;
 
-    <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException;
+    <T> T loadResourcePath(String name, ResourcePathConsumer<T> consumer) throws IOException;
 
     default String gav() {
         return String.format("%s:%s:%s", getBomGroupId(), getBomArtifactId(), getBomVersion());

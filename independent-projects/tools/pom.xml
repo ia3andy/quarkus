@@ -53,6 +53,7 @@
         <quarkus.version>999-SNAPSHOT</quarkus.version>
         <quarkus-http.version>3.0.11.Final</quarkus-http.version>
         <jackson.version>2.10.4</jackson.version>
+        <maven-model-helper.version>14</maven-model-helper.version>
     </properties>
     <modules>
         <module>platform-descriptor-api</module>
@@ -107,6 +108,11 @@
                         <artifactId>jboss-annotations-api_1.2_spec</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>maven-model-helper</artifactId>
+                <version>${maven-model-helper.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

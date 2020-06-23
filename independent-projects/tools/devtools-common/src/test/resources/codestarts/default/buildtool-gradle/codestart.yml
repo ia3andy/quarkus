@@ -8,7 +8,7 @@ data:
     version:
       kotlin: 1.3.72
       scala: 2.12.8
-  global:
+  shared:
     buildtool:
       build-dir: build
     gitignore: >

@@ -10,7 +10,7 @@ data:
       scala-maven-plugin: 4.1.1
       maven-compiler-plugin: 3.8.1
       maven-surefire-plugin: 2.22.1
-  global:
+  shared:
     buildtool:
       build-dir: target
     gitignore: >

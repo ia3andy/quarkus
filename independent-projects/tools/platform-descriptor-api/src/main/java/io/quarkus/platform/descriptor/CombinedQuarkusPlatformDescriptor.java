@@ -154,15 +154,15 @@ public class CombinedQuarkusPlatformDescriptor implements QuarkusPlatformDescrip
     }
 
     @Override
-    public <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
+    public <T> T loadResourcePath(String name, ResourcePathConsumer<T> consumer) throws IOException {
         for (QuarkusPlatformDescriptor platform : platforms) {
             try {
-                return platform.walkDir(name, consumer);
+                return platform.loadResourcePath(name, consumer);
             } catch (IOException e) {
                 // ignore
             }
         }
-        throw new IOException("Failed to locate resource dir " + name);
+        throw new IOException("Failed to locate resource " + name);
     }
 
     private static class DepKey {

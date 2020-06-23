@@ -1,7 +1,6 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
 import io.quarkus.bootstrap.model.AppArtifactKey;
-
 import java.util.Collection;
 import java.util.Map;
 

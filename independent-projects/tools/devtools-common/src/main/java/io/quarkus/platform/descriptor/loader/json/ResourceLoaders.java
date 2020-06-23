@@ -25,7 +25,7 @@ public final class ResourceLoaders {
         }
     }
 
-    public static Stream<String> getResourceNameWalker(final String dirName, final Path dirPath) throws IOException {
+    public static Stream<String> toResourceNameWalker(final String dirName, final Path dirPath) throws IOException {
         return Files.walk(dirPath).map(p -> resolveResourceName(dirName, dirPath, p));
     }
 

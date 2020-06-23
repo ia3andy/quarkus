@@ -8,7 +8,7 @@ import io.quarkus.dependencies.Category;
 import io.quarkus.dependencies.Extension;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.ResourceInputStreamConsumer;
-import io.quarkus.platform.descriptor.ResourceNamesConsumer;
+import io.quarkus.platform.descriptor.ResourcePathConsumer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +25,9 @@ public class TestDominatingQuarkusPlatformDescriptor implements QuarkusPlatformD
         addCategory("other", "Other category", categories);
         addCategory("web", "Dominating Web", categories);
 
-        addExtension(new AppArtifactCoords("io.quarkus", "quarkus-resteasy", "dominating-version"), "Dominating RESTEasy", "dominating/guide",
-            "reasteasy", extensions, bomDeps);
+        addExtension(new AppArtifactCoords("io.quarkus", "quarkus-resteasy", "dominating-version"), "Dominating RESTEasy",
+                "dominating/guide",
+                "reasteasy", extensions, bomDeps);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class TestDominatingQuarkusPlatformDescriptor implements QuarkusPlatformD
     }
 
     @Override
-    public <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
+    public <T> T loadResourcePath(String name, ResourcePathConsumer<T> consumer) throws IOException {
         return null;
     }
 }

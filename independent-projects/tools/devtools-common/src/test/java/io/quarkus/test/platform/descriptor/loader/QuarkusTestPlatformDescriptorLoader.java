@@ -5,7 +5,7 @@ import io.quarkus.dependencies.Category;
 import io.quarkus.dependencies.Extension;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.ResourceInputStreamConsumer;
-import io.quarkus.platform.descriptor.ResourceNamesConsumer;
+import io.quarkus.platform.descriptor.ResourcePathConsumer;
 import io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoader;
 import io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoaderContext;
 import io.quarkus.platform.descriptor.loader.json.ResourceLoaders;
@@ -19,11 +19,9 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Dependency;
 
 public class QuarkusTestPlatformDescriptorLoader
@@ -91,7 +89,8 @@ public class QuarkusTestPlatformDescriptorLoader
 
     public static void addExtension(AppArtifactCoords coords, String name, String guide, String codestart,
             List<Extension> extensions, List<Dependency> bomDeps) {
-        extensions.add(new Extension(coords.getGroupId(), coords.getArtifactId(), coords.getVersion()).setName(name).setGuide(guide).setCodestart(codestart));
+        extensions.add(new Extension(coords.getGroupId(), coords.getArtifactId(), coords.getVersion()).setName(name)
+                .setGuide(guide).setCodestart(codestart));
 
         final Dependency d = new Dependency();
         d.setGroupId(coords.getGroupId());
@@ -190,8 +189,8 @@ public class QuarkusTestPlatformDescriptorLoader
             }
 
             @Override
-            public <T> T walkDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
-                return loadStaticResourceDir(name, consumer);
+            public <T> T loadResourcePath(String name, ResourcePathConsumer<T> consumer) throws IOException {
+                return loadStaticResourcePath(name, consumer);
             }
 
             @Override
@@ -213,13 +212,12 @@ public class QuarkusTestPlatformDescriptorLoader
         }
     }
 
-    private static <T> T loadStaticResourceDir(String name, ResourceNamesConsumer<T> consumer) throws IOException {
+    private static <T> T loadStaticResourcePath(String name, ResourcePathConsumer<T> consumer) throws IOException {
         final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
         final File file = ResourceLoaders.getResourceFile(url, name);
-        if (!file.isDirectory()) {
-            throw new IOException("Resource " + name + " is not a directory on the classpath");
+        if (!Files.exists(file.toPath())) {
+            throw new IOException("Failed to locate resource " + name + " on the classpath");
         }
-        final Path dirPath = file.toPath();
-        return consumer.consume(Files.walk(dirPath).map(p -> FilenameUtils.concat(name, dirPath.relativize(p).toString())));
+        return consumer.consume(file.toPath());
     }
 }
