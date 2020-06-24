@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id '{quarkus.plugin.id}'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation enforcedPlatform("$\{quarkusPlatformGroupId}:$\{quarkusPlatformArtifactId}:$\{quarkusPlatformVersion}")
+    {#for dep in dependencies}    implementation {dep}{/for}
+
+    testImplementation 'io.quarkus:quarkus-junit5'
+    {#for dep in testDependencies}    testImplementation {dep}{/for}
+}
+
+group '{project.groupId}'
+version '{project.version}'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+

@@ -5,9 +5,10 @@ import static java.util.Objects.requireNonNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 public class CodestartSpec {
 
@@ -20,87 +21,62 @@ public class CodestartSpec {
     }
 
     private final String name;
+    private final String ref;
     private final Type type;
-    private final CodeStartData data;
     private final boolean isDefault;
-    private final CodeStartDeps core;
-    private final CodeStartDeps example;
+    private final boolean isExample;
+    private final Map<String, LanguageSpec> languagesSpec;
 
     @JsonCreator
     public CodestartSpec(@JsonProperty(value = "name", required = true) String name,
-            @JsonProperty(value = "type") Type type,
-            @JsonProperty("data") CodeStartData data,
-            @JsonProperty("default") boolean isDefault,
-            @JsonProperty("core") CodeStartDeps core,
-            @JsonProperty("example") CodeStartDeps example) {
+                         @JsonProperty(value = "ref") String ref,
+                         @JsonProperty(value = "type") Type type,
+                         @JsonProperty("default") boolean isDefault,
+                         @JsonProperty("example") boolean isExample,
+                         @JsonProperty("spec") Map<String, LanguageSpec> languagesSpec) {
         this.name = requireNonNull(name, "name is required");
+        this.ref = ref != null ? ref : name;
         this.type = type != null ? type : Type.CODESTART;
-        this.data = data != null ? data : new CodeStartData(null, null);
         this.isDefault = isDefault;
-        this.core = core != null ? core : new CodeStartDeps(null, null);
-        this.example = example != null ? example : new CodeStartDeps(null, null);
+        this.isExample = isExample;
+        this.languagesSpec = languagesSpec != null ? languagesSpec : Collections.emptyMap();
     }
 
     public String getName() {
         return name;
     }
 
-    public Type getType() {
-        return type;
+    public String getRef() {
+        return ref;
     }
 
-    public CodeStartData getData() {
-        return data;
+    public Type getType() {
+        return type;
     }
 
     public boolean isDefault() {
         return isDefault;
     }
 
-    public CodeStartDeps getCore() {
-        return core;
+    public boolean isExample() {
+        return isExample;
     }
 
-    public CodeStartDeps getExample() {
-        return example;
+    public LanguageSpec getBaseSpec() {
+        return languagesSpec.getOrDefault("base", new LanguageSpec());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        CodestartSpec that = (CodestartSpec) o;
-        return isDefault == that.isDefault &&
-                Objects.equals(name, that.name) &&
-                type == that.type &&
-                Objects.equals(data, that.data) &&
-                Objects.equals(core, that.core) &&
-                Objects.equals(example, that.example);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, type, data, isDefault, core, example);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("CodestartSpec{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", type=").append(type);
-        sb.append(", data=").append(data);
-        sb.append(", isDefault=").append(isDefault);
-        sb.append(", core=").append(core);
-        sb.append(", example=").append(example);
-        sb.append('}');
-        return sb.toString();
+    public LanguageSpec getLanguageSpec(String languageName) {
+        return languagesSpec.getOrDefault("language-" + languageName, new LanguageSpec());
     }
 
     public static final class CodeStartData {
         private final Map<String, Object> local;
         private final Map<String, Object> shared;
+
+        public CodeStartData() {
+           this(null, null);
+        }
 
         @JsonCreator
         public CodeStartData(@JsonProperty("local") Map<String, Object> local,
@@ -117,41 +93,28 @@ public class CodestartSpec {
             return shared;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            CodeStartData that = (CodeStartData) o;
-            return Objects.equals(local, that.local) &&
-                    Objects.equals(shared, that.shared);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(local, shared);
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("CodeStartData{");
-            sb.append("local=").append(local);
-            sb.append(", global=").append(shared);
-            sb.append('}');
-            return sb.toString();
-        }
     }
 
-    public static final class CodeStartDeps {
+    public static final class LanguageSpec {
+        private final CodeStartData data;
         private final List<CodestartDep> dependencies;
         private final List<CodestartDep> testDependencies;
 
+        public LanguageSpec() {
+            this(null, null, null);
+        }
+
         @JsonCreator
-        public CodeStartDeps(@JsonProperty("dependencies") List<CodestartDep> dependencies,
-                @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
+        public LanguageSpec(@JsonProperty("data") CodeStartData data,
+                            @JsonProperty("dependencies") List<CodestartDep> dependencies,
+                            @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
+            this.data = data != null ? data : new CodeStartData();
             this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
             this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
+        }
+
+        public CodeStartData getData() {
+            return data;
         }
 
         public List<CodestartDep> getDependencies() {
@@ -161,58 +124,42 @@ public class CodestartSpec {
         public List<CodestartDep> getTestDependencies() {
             return testDependencies;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            CodeStartDeps that = (CodeStartDeps) o;
-            return Objects.equals(dependencies, that.dependencies) &&
-                    Objects.equals(testDependencies, that.testDependencies);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(dependencies, testDependencies);
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("CodeStartDeps{");
-            sb.append("dependencies=").append(dependencies);
-            sb.append(", testDependencies=").append(testDependencies);
-            sb.append('}');
-            return sb.toString();
-        }
     }
+    public static class CodestartDep extends HashMap<String, String> {
+        public CodestartDep() {
+        }
 
-    public static class CodestartDep {
-
-        private final String groupId;
-        private final String artifactId;
-
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public CodestartDep(final String expression) {
             final String[] split = expression.split(":");
-            if(split.length != 2) {
+            if(split.length < 2 || split.length > 3) {
                 throw new IllegalArgumentException("Invalid CodestartDep expression: " + expression);
             }
-            this.groupId = split[0];
-            this.artifactId = split[1];
+            this.put("groupId", split[0]);
+            this.put("artifactId", split[1]);
+            if(split.length == 3) {
+                this.put("version", split[2]);
+            }
         }
 
         public String getGroupId() {
-            return groupId;
+            return this.get("groupId");
         }
 
         public String getArtifactId() {
-            return artifactId;
+            return this.get("artifactId");
+        }
+
+        public String getVersion() {
+            return this.get("version");
         }
 
         @Override
         public String toString() {
-            return groupId + ":" + artifactId;
+            final String version = Optional.ofNullable(getVersion()).map(v -> ":" + v).orElse("");
+            return getGroupId() + ":" + getArtifactId() + version;
         }
+
+
     }
 }

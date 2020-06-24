@@ -1,0 +1,135 @@
+package io.quarkus.devtools.project.codegen.codestarts;
+
+import io.fabric8.maven.Maven;
+import io.fabric8.maven.merge.SmartModelMerger;
+import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
+import io.quarkus.qute.Engine;
+import org.apache.maven.model.Model;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.stream.Stream;
+
+public final class CodestartProcessor {
+
+    private CodestartProcessor() {}
+
+    static void processCodestart(final QuarkusPlatformDescriptor descriptor, final Engine engine, final Codestart codestart,
+                                 final String languageName, final Path targetDirectory, final Map<String, Object> data) {
+        try {
+            descriptor.loadResourcePath(codestart.getResourceName(), p -> resolveDirectoriesToProcessAsStream(p, languageName))
+                    .forEach(p -> processCodestartLanguage(engine, p, targetDirectory, Codestarts.mergeData(codestart, languageName, data)));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+    }
+
+    static Stream<Path> resolveDirectoriesToProcessAsStream(final Path sourceDirectory, final String languageName)
+        throws IOException {
+        if (!Files.isDirectory(sourceDirectory)) {
+            throw new IllegalStateException("Codestart sourceDirectory is not a directory: " + sourceDirectory);
+        }
+        return Stream.of("base", "language-" + languageName)
+            .map(sourceDirectory::resolve)
+            .filter(Files::isDirectory);
+    }
+
+
+    static void processCodestartLanguage(final Engine engine, final Path sourceDirectory,
+                                         final Path targetProjectDirectory,
+                                         final Object data) {
+        try {
+            Files.walk(sourceDirectory)
+                    .filter(path -> !path.equals(sourceDirectory))
+                    .forEach(path -> {
+                        try {
+                            final Path relativePath = sourceDirectory.relativize(path);
+                            if (Files.isDirectory(path)) {
+                                Files.createDirectories(relativePath);
+                            } else {
+                                final String fileName = relativePath.getFileName().toString();
+                                final Path targetPath = targetProjectDirectory.resolve(relativePath);
+                                if (fileName.contains(".part")) {
+                                    // TODO we need some kind of PartCombiner interface with a "matcher"
+                                    if (fileName.equals("pom.part.qute.xml")) {
+                                        processMavenPart(engine, path, data, targetPath.getParent().resolve("pom.xml"));
+                                    } else if (fileName.equals("README.part.qute.md")) {
+                                        processReadmePart(engine, path, data, targetPath.getParent().resolve("README.md"));
+                                    } else {
+                                        throw new IllegalStateException("Unsupported part file: " + path);
+                                    }
+                                } else if (fileName.contains(".qute")) {
+                                    // Template file
+                                    processQuteFile(engine, path, data,
+                                            targetPath.getParent().resolve(fileName.replace(".qute", "")));
+                                } else {
+                                    // Static file
+                                    processStaticFile(path, targetPath);
+                                }
+                            }
+                        } catch (final IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+    }
+
+    private static void processReadmePart(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+        if (!Files.exists(targetPath)) {
+            throw new IllegalStateException(
+                    "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
+        }
+        final String renderedContent = "\n" + CodestartQute.processQuteContent(engine, path, data);
+        Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.APPEND);
+    }
+
+    private static void processMavenPart(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+        if (!Files.exists(targetPath)) {
+            throw new IllegalStateException(
+                    "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
+        }
+        final Model targetModel = Maven.readModel(targetPath);
+        final SmartModelMerger merger = new SmartModelMerger();
+        final String content = CodestartQute.processQuteContent(engine, path, data);
+        final Model sourceModel = Maven.readModel(new StringReader(content));
+        merger.merge(targetModel, sourceModel, true, null);
+        Maven.writeModel(targetModel);
+    }
+
+    private static void processStaticFile(Path path, Path targetPath) throws IOException {
+        Files.createDirectories(targetPath.getParent());
+        Files.copy(path, targetPath);
+    }
+
+    private static void processQuteFile(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+        final String renderedContent = CodestartQute.processQuteContent(engine, path, data);
+        Files.createDirectories(targetPath.getParent());
+        Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.CREATE_NEW);
+    }
+
+    static void checkTargetDir(Path targetDirectory) throws IOException {
+        if (!Files.exists(targetDirectory)) {
+            boolean mkdirStatus = targetDirectory.toFile().mkdirs();
+            if (!mkdirStatus) {
+                throw new IOException("Failed to create the project directory: " + targetDirectory);
+            }
+            return;
+        }
+        if (!Files.isDirectory(targetDirectory)) {
+            throw new IOException("Project path needs to point to a directory: " + targetDirectory);
+        }
+        final String[] files = targetDirectory.toFile().list();
+        if (files != null && files.length > 0) {
+            throw new IOException("You can't create a project when the directory is not empty: " + targetDirectory);
+        }
+    }
+}

@@ -1,0 +1,11 @@
+---
+name: quarkus
+type: project
+default: true
+spec:
+  base:
+    data:
+      shared:
+        project:
+          groupId: org.acme
+          artifactId: quarkus-project

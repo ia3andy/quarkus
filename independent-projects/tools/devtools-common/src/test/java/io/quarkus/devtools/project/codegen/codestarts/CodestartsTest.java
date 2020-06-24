@@ -24,67 +24,61 @@ class CodestartsTest extends PlatformAwareTestBase {
 
     @Test
     void loadDefaultCodestartsTest() throws IOException {
-        final Collection<Codestart> codestarts = Codestarts.loadDefaultCodestarts(getPlatformDescriptor());
+        final Collection<Codestart> codestarts = CodestartLoader.loadDefaultCodestarts(getPlatformDescriptor());
         assertThat(codestarts).hasSize(10);
     }
 
     @Test
-    void resolveCodestartProjectTestEmpty() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.emptyList(), Collections.emptyMap()));
+    void prepareProjectTestEmpty() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.emptyList(), false, Collections.emptyMap()));
         assertThat(codestartProject.getProject()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/project-quarkus");
+                .isEqualTo("codestarts/default/project/quarkus");
         assertThat(codestartProject.getBuildTool()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/buildtool-maven");
+                .isEqualTo("codestarts/default/buildtool/maven");
         assertThat(codestartProject.getConfig()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/config-properties");
+                .isEqualTo("codestarts/default/config/config-properties");
         assertThat(codestartProject.getLanguage()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/language-java");
+                .isEqualTo("codestarts/default/language/java");
         assertThat(codestartProject.getCodestarts()).extracting(Codestart::getResourceName)
-                .containsExactly("codestarts/default/codestart-docker");
+                .containsExactly("codestarts/default/codestart/docker");
     }
 
     @Test
-    void resolveCodestartProjectTestGradle() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.emptyList(), Collections.singletonMap("buildtool", "gradle")));
+    void prepareProjectTestGradle() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.emptyList(), false, Collections.singletonMap("buildtool", "gradle")));
         assertThat(codestartProject.getBuildTool()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/buildtool-gradle");
+                .isEqualTo("codestarts/default/buildtool/gradle");
     }
 
     @Test
-    void resolveCodestartProjectTestKotlin() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-kotlin")),
-                        Collections.emptyMap()));
+    void prepareProjectTestKotlin() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-kotlin")),
+            false, Collections.emptyMap()));
         assertThat(codestartProject.getLanguage()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/language-kotlin");
+                .isEqualTo("codestarts/default/language/kotlin");
     }
 
     @Test
-    void resolveCodestartProjectTestScala() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-scala")),
-                        Collections.emptyMap()));
+    void prepareProjectTestScala() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-scala")),
+            false, Collections.emptyMap()));
         assertThat(codestartProject.getLanguage()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/language-scala");
+                .isEqualTo("codestarts/default/language/scala");
     }
 
     @Test
-    void resolveCodestartProjectTestConfigYaml() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-config-yaml")),
-                        Collections.emptyMap()));
+    void prepareProjectTestConfigYaml() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-config-yaml")),
+            false, Collections.emptyMap()));
         assertThat(codestartProject.getConfig()).extracting(Codestart::getResourceName)
-                .isEqualTo("codestarts/default/config-yaml");
+                .isEqualTo("codestarts/default/config/config-yaml");
     }
 
     @Test
-    void resolveCodestartProjectTestResteasy() throws IOException {
-        final CodestartProject codestartProject = Codestarts.resolveCodestartProject(getPlatformDescriptor(),
-                new CodestartInput(Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-resteasy")),
-                        Collections.emptyMap()));
+    void prepareProjectTestResteasy() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.singletonList(AppArtifactKey.fromString("io.quarkus:quarkus-resteasy")),
+            true, Collections.emptyMap()));
         assertThat(codestartProject.getCodestarts()).extracting(Codestart::getResourceName)
-                .containsExactlyInAnyOrder("codestarts/default/codestart-docker", "codestarts/default/codestart-resteasy");
+                .containsExactlyInAnyOrder("codestarts/default/codestart/docker", "codestarts/extensions/resteasy-example");
     }
 }

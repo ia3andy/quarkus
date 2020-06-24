@@ -18,16 +18,16 @@ class CodestartProject {
     private final Codestart language;
     private final Codestart config;
     private final List<Codestart> codestarts;
-    private final Map<String, Object> inputData;
+    private final CodestartInput codestartInput;
 
     CodestartProject(Codestart project, Codestart buildTool, Codestart language, Codestart config, List<Codestart> codestarts,
-            Map<String, Object> inputData) {
+                     CodestartInput codestartInput) {
         this.project = project;
         this.buildTool = buildTool;
         this.language = language;
         this.config = config;
         this.codestarts = codestarts;
-        this.inputData = inputData;
+        this.codestartInput = codestartInput;
     }
 
     public Codestart getProject() {
@@ -50,8 +50,8 @@ class CodestartProject {
         return codestarts;
     }
 
-    public Map<String, Object> getInputData() {
-        return inputData;
+    public CodestartInput getCodestartInput() {
+        return codestartInput;
     }
 
     public List<Codestart> getDefaultCodestart() {
@@ -72,17 +72,18 @@ class CodestartProject {
 
     public Map<String, Object> getSharedData() {
         final Stream<Map<String, Object>> codestartsGlobal = getAllCodestartsStream()
-                .map(c -> c.getSpec().getData().getShared());
-        return mergeMaps(Stream.concat(codestartsGlobal, Stream.of(getInputData())));
+                .map(c -> c.getSharedData(getLanguageName()));
+        return mergeMaps(Stream.concat(codestartsGlobal, Stream.of(getCodestartInput().getData())));
     }
 
-    public Map<String, Object> getDepsData(boolean includeExample) {
+    public Map<String, Object> getDepsData() {
         final Map<String, List<CodestartSpec.CodestartDep>> depsData = new HashMap<>();
-        depsData.put("dependencies", new ArrayList<>());
+        final List<CodestartSpec.CodestartDep> extensionsAsDeps = codestartInput.getExtensions().stream().map(k -> k.getGroupId() + ":" + k.getArtifactId()).map(CodestartSpec.CodestartDep::new).collect(Collectors.toList());
+        depsData.put("dependencies", new ArrayList<>(extensionsAsDeps));
         depsData.put("testDependencies", new ArrayList<>());
         getAllCodestartsStream()
             .map(Codestart::getSpec)
-            .flatMap(s -> Stream.of(s.getCore(), includeExample ? s.getExample() : new CodestartSpec.CodeStartDeps(null, null)))
+            .flatMap(s -> Stream.of(s.getBaseSpec(), s.getLanguageSpec(getLanguageName())))
             .forEach(d -> {
                 depsData.get("dependencies").addAll(d.getDependencies());
                 depsData.get("testDependencies").addAll(d.getTestDependencies());
