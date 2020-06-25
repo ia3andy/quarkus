@@ -3,9 +3,10 @@ package io.quarkus.devtools.project.codegen.codestarts;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static io.quarkus.devtools.project.codegen.codestarts.Codestarts.mergeMaps;
+import static io.quarkus.devtools.project.codegen.codestarts.CodestartData.mergeMaps;
 
-public final class Codestart {
+final class Codestart {
+    public static final String BASE_LANGUAGE = "base";
     private final String resourceName;
     private final CodestartSpec spec;
 
@@ -23,11 +24,19 @@ public final class Codestart {
     }
 
     public Map<String, Object> getLocalData(String languageName) {
-        return mergeMaps(Stream.of(getSpec().getBaseSpec().getData().getLocal(), getSpec().getLanguageSpec(languageName).getData().getLocal()));
+        return mergeMaps(Stream.of(getBaseLanguageSpec().getLocalData(), getLanguageSpec(languageName).getLocalData()));
     }
 
     public Map<String, Object> getSharedData(String languageName) {
-        return mergeMaps(Stream.of(getSpec().getBaseSpec().getData().getShared(), getSpec().getLanguageSpec(languageName).getData().getShared()));
+        return mergeMaps(Stream.of(getBaseLanguageSpec().getSharedData(), getLanguageSpec(languageName).getSharedData()));
+    }
+
+    public CodestartSpec.LanguageSpec getBaseLanguageSpec() {
+        return getSpec().getLanguagesSpec().getOrDefault(BASE_LANGUAGE, new CodestartSpec.LanguageSpec());
+    }
+
+    public CodestartSpec.LanguageSpec getLanguageSpec(String languageName) {
+        return getSpec().getLanguagesSpec().getOrDefault(languageName, new CodestartSpec.LanguageSpec());
     }
 
 }

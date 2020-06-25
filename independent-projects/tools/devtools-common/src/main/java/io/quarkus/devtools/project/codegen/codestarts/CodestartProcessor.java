@@ -15,7 +15,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public final class CodestartProcessor {
+import static io.quarkus.devtools.project.codegen.codestarts.Codestart.BASE_LANGUAGE;
+
+final class CodestartProcessor {
 
     private CodestartProcessor() {}
 
@@ -23,7 +25,7 @@ public final class CodestartProcessor {
                                  final String languageName, final Path targetDirectory, final Map<String, Object> data) {
         try {
             descriptor.loadResourcePath(codestart.getResourceName(), p -> resolveDirectoriesToProcessAsStream(p, languageName))
-                    .forEach(p -> processCodestartLanguage(engine, p, targetDirectory, Codestarts.mergeData(codestart, languageName, data)));
+                    .forEach(p -> processCodestartLanguage(engine, p, targetDirectory, CodestartData.mergeData(codestart, languageName, data)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -35,7 +37,7 @@ public final class CodestartProcessor {
         if (!Files.isDirectory(sourceDirectory)) {
             throw new IllegalStateException("Codestart sourceDirectory is not a directory: " + sourceDirectory);
         }
-        return Stream.of("base", "language-" + languageName)
+        return Stream.of(BASE_LANGUAGE, languageName)
             .map(sourceDirectory::resolve)
             .filter(Files::isDirectory);
     }
@@ -43,7 +45,7 @@ public final class CodestartProcessor {
 
     static void processCodestartLanguage(final Engine engine, final Path sourceDirectory,
                                          final Path targetProjectDirectory,
-                                         final Object data) {
+                                         final Map<String, Object> data) {
         try {
             Files.walk(sourceDirectory)
                     .filter(path -> !path.equals(sourceDirectory))
@@ -83,7 +85,7 @@ public final class CodestartProcessor {
 
     }
 
-    private static void processReadmePart(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+    private static void processReadmePart(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
         if (!Files.exists(targetPath)) {
             throw new IllegalStateException(
                     "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
@@ -92,7 +94,7 @@ public final class CodestartProcessor {
         Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.APPEND);
     }
 
-    private static void processMavenPart(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+    private static void processMavenPart(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
         if (!Files.exists(targetPath)) {
             throw new IllegalStateException(
                     "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
@@ -110,7 +112,7 @@ public final class CodestartProcessor {
         Files.copy(path, targetPath);
     }
 
-    private static void processQuteFile(Engine engine, Path path, Object data, Path targetPath) throws IOException {
+    private static void processQuteFile(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
         final String renderedContent = CodestartQute.processQuteContent(engine, path, data);
         Files.createDirectories(targetPath.getParent());
         Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.CREATE_NEW);

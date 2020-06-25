@@ -45,8 +45,8 @@ public class QuarkusTestPlatformDescriptorLoader
     private static void addExtensions() {
         addExtension("quarkus-agroal", "Agroal");
         addExtension("quarkus-arc", "Arc");
-        addExtension("quarkus-kotlin", "Kotlin", "url://", "language-kotlin");
-        addExtension("quarkus-scala", "Scala", "url://", "language-scala");
+        addExtension("quarkus-kotlin", "Kotlin", "url://", "kotlin");
+        addExtension("quarkus-scala", "Scala", "url://", "scala");
         addExtension("quarkus-config-yaml", "Config Yaml", "url://", "config-yaml");
         addExtension("quarkus-hibernate-orm-panache", "Hibernate ORM Panache");
         addExtension("quarkus-hibernate-search-elasticsearch", "Elasticsearch");

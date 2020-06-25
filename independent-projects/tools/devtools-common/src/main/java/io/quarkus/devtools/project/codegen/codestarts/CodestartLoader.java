@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static io.quarkus.platform.descriptor.loader.json.ResourceLoaders.toResourceNameWalker;
 
-public final class CodestartLoader {
+final class CodestartLoader {
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory())
         .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
         .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
@@ -49,7 +49,7 @@ public final class CodestartLoader {
                         .readValue(descriptor.getTemplate(n));
                     return new Codestart(n.replaceAll("/?codestart\\.ya?ml", ""), spec);
                 } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    throw new UncheckedIOException("Failed to parse codestart spec: " + n, e);
                 }
             }).collect(Collectors.toList());
     }

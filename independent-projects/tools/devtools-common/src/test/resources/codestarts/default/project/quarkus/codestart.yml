@@ -4,8 +4,6 @@ type: project
 default: true
 spec:
   base:
-    data:
-      shared:
-        project:
-          groupId: org.acme
-          artifactId: quarkus-project
+    sharedData:
+      project.groupId: org.acme
+      project.artifactId: quarkus-project

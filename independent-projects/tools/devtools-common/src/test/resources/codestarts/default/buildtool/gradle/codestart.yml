@@ -2,81 +2,73 @@ name: gradle
 type: buildtool
 spec:
   base:
-    data:
-      local:
-        quarkus:
-          plugin:
-            id: io.quarkus
-        version:
-          kotlin: 1.3.72
-          scala: 2.12.8
-      shared:
-        buildtool:
-          build-dir: build
-        gitignore: >
-          # Gradle
-          .gradle/
-          build/
-  language-java:
-    data:
-      local:
-        plugins: |
-          id 'java'
-        append: |
-          compileJava {
-              options.encoding = 'UTF-8'
-              options.compilerArgs << '-parameters'
-          }
+    localData:
+      quarkus.plugin.id: io.quarkus
+      version.kotlin: 1.3.72
+      version.scala: 2.12.8
+    sharedData:
+      buildtool.build-dir: build
+      gitignore: >
+        # Gradle
+        .gradle/
+        build/
+  java:
+    localData:
+      plugins: |
+        id 'java'
+      append: |
+        compileJava {
+            options.encoding = 'UTF-8'
+            options.compilerArgs << '-parameters'
+        }
 
-          compileTestJava {
-              options.encoding = 'UTF-8'
-          }
-  language-kotlin:
+        compileTestJava {
+            options.encoding = 'UTF-8'
+        }
+  kotlin:
     dependencies:
       - org.jetbrains.kotlin:kotlin-stdlib-jdk8
     testDependencies:
       -
-    data:
-      local:
-        plugins: |
-          id 'org.jetbrains.kotlin.jvm' version "{version.kotlin}"
-          id "org.jetbrains.kotlin.plugin.allopen" version "{version.kotlin}"
-        append: |
-          quarkus {
-              setOutputDirectory("$projectDir/build/classes/kotlin/main")
-          }
+    localData:
+      plugins: |
+        id 'org.jetbrains.kotlin.jvm' version "{version.kotlin}"
+        id "org.jetbrains.kotlin.plugin.allopen" version "{version.kotlin}"
+      append: |
+        quarkus {
+            setOutputDirectory("$projectDir/build/classes/kotlin/main")
+        }
 
-          quarkusDev {
-              setSourceDir("$projectDir/src/main/kotlin")
-          }
+        quarkusDev {
+            setSourceDir("$projectDir/src/main/kotlin")
+        }
 
-          allOpen {
-              annotation("javax.ws.rs.Path")
-              annotation("javax.enterprise.context.ApplicationScoped")
-              annotation("io.quarkus.test.junit.QuarkusTest")
-          }
+        allOpen {
+            annotation("javax.ws.rs.Path")
+            annotation("javax.enterprise.context.ApplicationScoped")
+            annotation("io.quarkus.test.junit.QuarkusTest")
+        }
 
-          compileKotlin {
-              kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
-              kotlinOptions.javaParameters = true
-          }
+        compileKotlin {
+            kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
+            kotlinOptions.javaParameters = true
+        }
 
-          compileTestKotlin {
-              kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
-          }
-  language-scala:
+        compileTestKotlin {
+            kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
+        }
+  scala:
     dependencies:
       - org.scala-lang:scala-library:${version.scala}
-    data:
-      local:
-        plugins: |
-          id 'scala'
-        append: |
-          compileScala {
-              scalaCompileOptions.encoding = 'UTF-8'
-              sourceCompatibility = JavaVersion.VERSION_1_8
-              targetCompatibility = JavaVersion.VERSION_1_8
-          }
+    localData:
+      plugins: |
+        id 'scala'
+      append: |
+        compileScala {
+            scalaCompileOptions.encoding = 'UTF-8'
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
 
 
 

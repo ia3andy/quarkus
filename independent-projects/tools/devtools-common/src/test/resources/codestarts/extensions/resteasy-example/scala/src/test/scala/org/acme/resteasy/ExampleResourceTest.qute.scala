@@ -1,4 +1,4 @@
-package org.acme.resteasy.resteasy
+package org.acme.resteasy
 
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given

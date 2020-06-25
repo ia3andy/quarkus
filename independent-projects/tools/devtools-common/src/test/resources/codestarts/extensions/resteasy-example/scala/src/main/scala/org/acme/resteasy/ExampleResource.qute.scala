@@ -1,6 +1,6 @@
 package org.acme.resteasy
 
-import javax.ws.rs.{GET, Path, Produces}
+import javax.ws.rs.\{GET, Path, Produces}
 import javax.ws.rs.core.MediaType
 
 @Path("{rest.path}")

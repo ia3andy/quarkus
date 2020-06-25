@@ -4,7 +4,6 @@ import io.quarkus.dependencies.Extension;
 import io.quarkus.devtools.project.extensions.Extensions;
 import io.quarkus.qute.Engine;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
@@ -49,7 +48,7 @@ public class Codestarts {
         final String languageName = codestartProject.getLanguageName();
         final Map<String, Object> sharedData = codestartProject.getSharedData();
         final Engine engine = CodestartQute.newEngine();
-        final Map<String, Object> data = mergeMaps(Stream.of(sharedData, codestartProject.getDepsData()));
+        final Map<String, Object> data = CodestartData.mergeMaps(Stream.of(sharedData, codestartProject.getDepsData()));
         // TODO support yaml config
         codestartProject.getAllCodestartsStream()
             .forEach(c -> CodestartProcessor.processCodestart(codestartProject.getCodestartInput().getDescriptor(), engine, c, languageName, targetDirectory, data));
@@ -65,15 +64,4 @@ public class Codestarts {
                 .orElseThrow(() -> new IllegalStateException("No matching codestart of type " + type + " has been found"));
     }
 
-    static Map<String, Object> mergeData(final Codestart codestart, final String languageName, final Map<String, Object> data) {
-        return mergeMaps(Stream.of(codestart.getLocalData(languageName), data));
-    }
-
-    static Map<String, Object> mergeMaps(final Stream<Map<String, Object>> stream) {
-        // TODO we will need a deep merge here
-        return stream
-                .map(Map::entrySet)
-                .flatMap(Set::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
 }

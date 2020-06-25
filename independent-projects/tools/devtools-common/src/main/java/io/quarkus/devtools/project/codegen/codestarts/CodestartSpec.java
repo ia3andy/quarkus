@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CodestartSpec {
+final class CodestartSpec {
 
     enum Type {
         PROJECT,
@@ -62,59 +62,37 @@ public class CodestartSpec {
         return isExample;
     }
 
-    public LanguageSpec getBaseSpec() {
-        return languagesSpec.getOrDefault("base", new LanguageSpec());
-    }
-
-    public LanguageSpec getLanguageSpec(String languageName) {
-        return languagesSpec.getOrDefault("language-" + languageName, new LanguageSpec());
-    }
-
-    public static final class CodeStartData {
-        private final Map<String, Object> local;
-        private final Map<String, Object> shared;
-
-        public CodeStartData() {
-           this(null, null);
-        }
-
-        @JsonCreator
-        public CodeStartData(@JsonProperty("local") Map<String, Object> local,
-                @JsonProperty("shared") Map<String, Object> shared) {
-            this.local = local != null ? local : Collections.emptyMap();
-            this.shared = shared != null ? shared : Collections.emptyMap();
-        }
-
-        public Map<String, Object> getLocal() {
-            return local;
-        }
-
-        public Map<String, Object> getShared() {
-            return shared;
-        }
-
+    public Map<String, LanguageSpec> getLanguagesSpec() {
+        return languagesSpec;
     }
 
     public static final class LanguageSpec {
-        private final CodeStartData data;
+        private final Map<String, Object> localData;
+        private final Map<String, Object> sharedData;
         private final List<CodestartDep> dependencies;
         private final List<CodestartDep> testDependencies;
 
         public LanguageSpec() {
-            this(null, null, null);
+            this(null, null, null, null);
         }
 
         @JsonCreator
-        public LanguageSpec(@JsonProperty("data") CodeStartData data,
+        public LanguageSpec(@JsonProperty("localData") Map<String, Object> localData,
+                            @JsonProperty("sharedData") Map<String, Object> sharedData,
                             @JsonProperty("dependencies") List<CodestartDep> dependencies,
                             @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
-            this.data = data != null ? data : new CodeStartData();
+            this.localData = localData != null ? localData : Collections.emptyMap();
+            this.sharedData = sharedData != null ? sharedData : Collections.emptyMap();
             this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
             this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
         }
 
-        public CodeStartData getData() {
-            return data;
+        public Map<String, Object> getLocalData() {
+            return localData;
+        }
+
+        public Map<String, Object> getSharedData() {
+            return sharedData;
         }
 
         public List<CodestartDep> getDependencies() {

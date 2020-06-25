@@ -1,6 +1,6 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
-import static io.quarkus.devtools.project.codegen.codestarts.Codestarts.mergeMaps;
+import static io.quarkus.devtools.project.codegen.codestarts.CodestartData.mergeMaps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class CodestartProject {
+final class CodestartProject {
 
     private final Codestart project;
     private final Codestart buildTool;
@@ -82,8 +82,7 @@ class CodestartProject {
         depsData.put("dependencies", new ArrayList<>(extensionsAsDeps));
         depsData.put("testDependencies", new ArrayList<>());
         getAllCodestartsStream()
-            .map(Codestart::getSpec)
-            .flatMap(s -> Stream.of(s.getBaseSpec(), s.getLanguageSpec(getLanguageName())))
+            .flatMap(s -> Stream.of(s.getBaseLanguageSpec(), s.getLanguageSpec(getLanguageName())))
             .forEach(d -> {
                 depsData.get("dependencies").addAll(d.getDependencies());
                 depsData.get("testDependencies").addAll(d.getTestDependencies());
