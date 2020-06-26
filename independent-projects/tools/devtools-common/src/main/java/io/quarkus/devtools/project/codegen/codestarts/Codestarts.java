@@ -19,7 +19,7 @@ public class Codestarts {
 
 
     public static CodestartProject prepareProject(final CodestartInput input) throws IOException {
-        final String buildToolCodeStart = "buildtool-" + input.getData().getOrDefault("buildtool", "maven");
+        final String buildToolCodeStart = (String) input.getData().getOrDefault("buildtool.name", "maven");
         final Set<String> enabledCodestarts = Stream.concat(input.getDescriptor().getExtensions().stream()
                 .filter(e -> input.getExtensions().contains(Extensions.toKey(e)))
                 .map(Extension::getCodestart), Stream.of(buildToolCodeStart))
@@ -47,11 +47,10 @@ public class Codestarts {
         CodestartProcessor.checkTargetDir(targetDirectory);
         final String languageName = codestartProject.getLanguageName();
         final Map<String, Object> sharedData = codestartProject.getSharedData();
-        final Engine engine = CodestartQute.newEngine();
         final Map<String, Object> data = CodestartData.mergeMaps(Stream.of(sharedData, codestartProject.getDepsData()));
         // TODO support yaml config
         codestartProject.getAllCodestartsStream()
-            .forEach(c -> CodestartProcessor.processCodestart(codestartProject.getCodestartInput().getDescriptor(), engine, c, languageName, targetDirectory, data));
+            .forEach(c -> CodestartProcessor.processCodestart(codestartProject.getCodestartInput().getDescriptor(), c, languageName, targetDirectory, data));
     }
 
 

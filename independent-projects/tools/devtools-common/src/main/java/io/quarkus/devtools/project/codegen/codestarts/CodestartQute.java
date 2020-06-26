@@ -1,21 +1,22 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.Optional;
 
 import io.quarkus.qute.Engine;
-import io.quarkus.qute.EvalContext;
 import io.quarkus.qute.Expression;
 import io.quarkus.qute.ResultMapper;
 import io.quarkus.qute.Results;
+import io.quarkus.qute.TemplateLocator;
 import io.quarkus.qute.TemplateNode;
-import io.quarkus.qute.ValueResolver;
+import io.quarkus.qute.Variant;
 import org.apache.commons.lang3.StringUtils;
 
 final class CodestartQute {
@@ -28,10 +29,29 @@ final class CodestartQute {
             .build();
     }
 
-    public static String processQuteContent(Engine engine, Path path, Map<String, Object> data) throws IOException {
+    public static String processQuteContent(Path path, String languageName, Map<String, Object> data) throws IOException {
         final String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         final Object preparedData = prepareData(data);
+        final Engine engine = Engine.builder().addDefaults()
+            .addResultMapper(new MissingValueMapper())
+            .addLocator(id -> findIncludeTemplate(path, languageName, id).map(IncludeTemplateLocation::new))
+            .build();
         return engine.parse(content).render(preparedData);
+    }
+
+    private static Optional<Path> findIncludeTemplate(Path path, String languageName, String name) {
+        // FIXME looking at the parent dir is a bit random
+        final Path codestartPath = path.getParent().getParent();
+        final String includeFileName = name + ".include.qute";
+        final Path languageIncludeTemplate = codestartPath.resolve(languageName + "/" + includeFileName);
+        if(Files.isRegularFile(languageIncludeTemplate)) {
+            return Optional.of(languageIncludeTemplate);
+        }
+        final Path baseIncludeTemplate = codestartPath.resolve("base/" + includeFileName);
+        if(Files.isRegularFile(baseIncludeTemplate)) {
+            return Optional.of(baseIncludeTemplate);
+        }
+        return Optional.empty();
     }
 
     private static Object prepareData(Map<String, Object> data) {
@@ -46,8 +66,7 @@ final class CodestartQute {
         return unflattened;
     }
 
-    private static void doUnflatten(Map<String, Object> current, String key,
-                                    Object originalValue) {
+    private static void doUnflatten(Map<String, Object> current, String key, Object originalValue) {
         String[] parts = StringUtils.split(key, ".");
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
@@ -56,13 +75,40 @@ final class CodestartQute {
                 return;
             }
 
-            Map<String, Object> nestedMap = (Map<String, Object>) current.get(part);
-            if (nestedMap == null) {
-                nestedMap = new HashMap<>();
-                current.put(part, nestedMap);
-            }
 
-            current = nestedMap;
+            final Object value = current.get(part);
+            if (value == null) {
+                final HashMap<String, Object> map = new HashMap<>();
+                current.put(part, map);
+                current = map;
+            } else if(value instanceof Map) {
+                current = (Map<String, Object>) value;
+            } else {
+                throw new IllegalStateException("Conflicting data types for key '" + key + "'");
+            }
+        }
+    }
+
+    private static class IncludeTemplateLocation implements TemplateLocator.TemplateLocation {
+
+        private final Path path;
+
+        private IncludeTemplateLocation(Path path) {
+            this.path = path;
+        }
+
+        @Override
+        public Reader read() {
+            try {
+                return Files.newBufferedReader(path);
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public Optional<Variant> getVariant() {
+            return Optional.empty();
         }
     }
 

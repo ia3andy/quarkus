@@ -3,7 +3,6 @@ package io.quarkus.devtools.project.codegen.codestarts;
 import io.fabric8.maven.Maven;
 import io.fabric8.maven.merge.SmartModelMerger;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
-import io.quarkus.qute.Engine;
 import org.apache.maven.model.Model;
 
 import java.io.IOException;
@@ -21,11 +20,11 @@ final class CodestartProcessor {
 
     private CodestartProcessor() {}
 
-    static void processCodestart(final QuarkusPlatformDescriptor descriptor, final Engine engine, final Codestart codestart,
+    static void processCodestart(final QuarkusPlatformDescriptor descriptor, final Codestart codestart,
                                  final String languageName, final Path targetDirectory, final Map<String, Object> data) {
         try {
             descriptor.loadResourcePath(codestart.getResourceName(), p -> resolveDirectoriesToProcessAsStream(p, languageName))
-                    .forEach(p -> processCodestartLanguage(engine, p, targetDirectory, CodestartData.mergeData(codestart, languageName, data)));
+                    .forEach(p -> processCodestartDir(languageName, p, targetDirectory, CodestartData.mergeData(codestart, languageName, data)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -43,9 +42,10 @@ final class CodestartProcessor {
     }
 
 
-    static void processCodestartLanguage(final Engine engine, final Path sourceDirectory,
-                                         final Path targetProjectDirectory,
-                                         final Map<String, Object> data) {
+    static void processCodestartDir(final String languageName,
+                                    final Path sourceDirectory,
+                                    final Path targetProjectDirectory,
+                                    final Map<String, Object> data) {
         try {
             Files.walk(sourceDirectory)
                     .filter(path -> !path.equals(sourceDirectory))
@@ -53,22 +53,26 @@ final class CodestartProcessor {
                         try {
                             final Path relativePath = sourceDirectory.relativize(path);
                             if (Files.isDirectory(path)) {
-                                Files.createDirectories(relativePath);
+                                return;
                             } else {
                                 final String fileName = relativePath.getFileName().toString();
                                 final Path targetPath = targetProjectDirectory.resolve(relativePath);
                                 if (fileName.contains(".part")) {
                                     // TODO we need some kind of PartCombiner interface with a "matcher"
                                     if (fileName.equals("pom.part.qute.xml")) {
-                                        processMavenPart(engine, path, data, targetPath.getParent().resolve("pom.xml"));
+                                        processMavenPart(path, languageName, data, targetPath.getParent().resolve("pom.xml"));
                                     } else if (fileName.equals("README.part.qute.md")) {
-                                        processReadmePart(engine, path, data, targetPath.getParent().resolve("README.md"));
+                                        processReadmePart(path, languageName, data, targetPath.getParent().resolve("README.md"));
                                     } else {
                                         throw new IllegalStateException("Unsupported part file: " + path);
                                     }
                                 } else if (fileName.contains(".qute")) {
+                                    if (fileName.endsWith(".include.qute")) {
+                                        //ignore includes
+                                        return;
+                                    }
                                     // Template file
-                                    processQuteFile(engine, path, data,
+                                    processQuteFile(path, languageName, data,
                                             targetPath.getParent().resolve(fileName.replace(".qute", "")));
                                 } else {
                                     // Static file
@@ -85,23 +89,23 @@ final class CodestartProcessor {
 
     }
 
-    private static void processReadmePart(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
+    private static void processReadmePart(Path path, String languageName, Map<String, Object> data, Path targetPath) throws IOException {
         if (!Files.exists(targetPath)) {
             throw new IllegalStateException(
                     "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
         }
-        final String renderedContent = "\n" + CodestartQute.processQuteContent(engine, path, data);
+        final String renderedContent = "\n" + CodestartQute.processQuteContent(path, languageName, data);
         Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.APPEND);
     }
 
-    private static void processMavenPart(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
+    private static void processMavenPart(Path path, String languageName, Map<String, Object> data, Path targetPath) throws IOException {
         if (!Files.exists(targetPath)) {
             throw new IllegalStateException(
                     "Using .part is not possible when the target file does not exist already: " + path + " -> " + targetPath);
         }
         final Model targetModel = Maven.readModel(targetPath);
         final SmartModelMerger merger = new SmartModelMerger();
-        final String content = CodestartQute.processQuteContent(engine, path, data);
+        final String content = CodestartQute.processQuteContent(path, languageName, data);
         final Model sourceModel = Maven.readModel(new StringReader(content));
         merger.merge(targetModel, sourceModel, true, null);
         Maven.writeModel(targetModel);
@@ -112,8 +116,8 @@ final class CodestartProcessor {
         Files.copy(path, targetPath);
     }
 
-    private static void processQuteFile(Engine engine, Path path, Map<String, Object> data, Path targetPath) throws IOException {
-        final String renderedContent = CodestartQute.processQuteContent(engine, path, data);
+    private static void processQuteFile(Path path, String languageName, Map<String, Object> data, Path targetPath) throws IOException {
+        final String renderedContent = CodestartQute.processQuteContent(path, languageName, data);
         Files.createDirectories(targetPath.getParent());
         Files.write(targetPath, renderedContent.getBytes(), StandardOpenOption.CREATE_NEW);
     }

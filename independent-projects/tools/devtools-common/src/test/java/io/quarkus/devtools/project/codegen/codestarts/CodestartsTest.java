@@ -48,7 +48,7 @@ class CodestartsTest extends PlatformAwareTestBase {
 
     @Test
     void prepareProjectTestGradle() throws IOException {
-        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.emptyList(), false, Collections.singletonMap("buildtool", "gradle")));
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), Collections.emptyList(), false, Collections.singletonMap("buildtool.name", "gradle")));
         assertThat(codestartProject.getBuildTool()).extracting(Codestart::getResourceName)
                 .isEqualTo("codestarts/default/buildtool/gradle");
     }

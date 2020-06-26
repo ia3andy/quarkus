@@ -69,20 +69,23 @@ final class CodestartSpec {
     public static final class LanguageSpec {
         private final Map<String, Object> localData;
         private final Map<String, Object> sharedData;
+        private final Map<String, String> qutePartials;
         private final List<CodestartDep> dependencies;
         private final List<CodestartDep> testDependencies;
 
         public LanguageSpec() {
-            this(null, null, null, null);
+            this(null, null, null, null, null);
         }
 
         @JsonCreator
         public LanguageSpec(@JsonProperty("localData") Map<String, Object> localData,
                             @JsonProperty("sharedData") Map<String, Object> sharedData,
+                            @JsonProperty("qutePartials") Map<String, String> qutePartials,
                             @JsonProperty("dependencies") List<CodestartDep> dependencies,
                             @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
             this.localData = localData != null ? localData : Collections.emptyMap();
             this.sharedData = sharedData != null ? sharedData : Collections.emptyMap();
+            this.qutePartials = qutePartials != null ? qutePartials : Collections.emptyMap();;
             this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
             this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
         }
@@ -93,6 +96,10 @@ final class CodestartSpec {
 
         public Map<String, Object> getSharedData() {
             return sharedData;
+        }
+
+        public Map<String, String> getQutePartials() {
+            return qutePartials;
         }
 
         public List<CodestartDep> getDependencies() {

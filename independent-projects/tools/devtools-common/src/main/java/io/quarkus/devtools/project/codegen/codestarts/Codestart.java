@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.quarkus.devtools.project.codegen.codestarts.CodestartData.mergeMaps;
+import static io.quarkus.devtools.project.codegen.codestarts.CodestartData.mergePartials;
 
 final class Codestart {
     public static final String BASE_LANGUAGE = "base";
@@ -29,6 +30,10 @@ final class Codestart {
 
     public Map<String, Object> getSharedData(String languageName) {
         return mergeMaps(Stream.of(getBaseLanguageSpec().getSharedData(), getLanguageSpec(languageName).getSharedData()));
+    }
+
+    public Map<String, String> getQutePartials(String languageName) {
+        return mergePartials(Stream.of(getBaseLanguageSpec().getQutePartials(), getLanguageSpec(languageName).getQutePartials()));
     }
 
     public CodestartSpec.LanguageSpec getBaseLanguageSpec() {

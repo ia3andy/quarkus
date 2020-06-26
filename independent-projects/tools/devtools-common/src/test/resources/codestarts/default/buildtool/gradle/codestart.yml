@@ -8,67 +8,19 @@ spec:
       version.scala: 2.12.8
     sharedData:
       buildtool.build-dir: build
+      buildtool.cmd.dev: ./gradlew quarkusDev
+      buildtool.cmd.package: ./gradlew quarkusBuild
+      buildtool.cmd.package-uberjar:  ./gradlew quarkusBuild --uber-jar
+      buildtool.cmd.package-native: ./gradlew build -Dquarkus.package.type=native
+      buildtool.cmd.package-native-container: ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
+      buildtool.guide: https://quarkus.io/guides/gradle-tooling#building-a-native-executable
       gitignore: >
         # Gradle
         .gradle/
         build/
-  java:
-    localData:
-      plugins: |
-        id 'java'
-      append: |
-        compileJava {
-            options.encoding = 'UTF-8'
-            options.compilerArgs << '-parameters'
-        }
-
-        compileTestJava {
-            options.encoding = 'UTF-8'
-        }
   kotlin:
     dependencies:
       - org.jetbrains.kotlin:kotlin-stdlib-jdk8
-    testDependencies:
-      -
-    localData:
-      plugins: |
-        id 'org.jetbrains.kotlin.jvm' version "{version.kotlin}"
-        id "org.jetbrains.kotlin.plugin.allopen" version "{version.kotlin}"
-      append: |
-        quarkus {
-            setOutputDirectory("$projectDir/build/classes/kotlin/main")
-        }
-
-        quarkusDev {
-            setSourceDir("$projectDir/src/main/kotlin")
-        }
-
-        allOpen {
-            annotation("javax.ws.rs.Path")
-            annotation("javax.enterprise.context.ApplicationScoped")
-            annotation("io.quarkus.test.junit.QuarkusTest")
-        }
-
-        compileKotlin {
-            kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
-            kotlinOptions.javaParameters = true
-        }
-
-        compileTestKotlin {
-            kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
-        }
   scala:
     dependencies:
       - org.scala-lang:scala-library:${version.scala}
-    localData:
-      plugins: |
-        id 'scala'
-      append: |
-        compileScala {
-            scalaCompileOptions.encoding = 'UTF-8'
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-        }
-
-
-

@@ -21,5 +21,12 @@ final class CodestartData {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    static Map<String, String> mergePartials(final Stream<Map<String, String>> stream) {
+        return stream
+            .map(Map::entrySet)
+            .flatMap(Set::stream)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
 
 }

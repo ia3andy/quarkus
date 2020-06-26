@@ -1,0 +1,10 @@
+---
+name: commandmode-example
+ref: commandmode
+default: true
+example: true
+spec:
+  base:
+    localData:
+      greeting.message: "hello"
+      greeting.defaultName: "commando"

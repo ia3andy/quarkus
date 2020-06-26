@@ -30,6 +30,10 @@ class CodestartProjectTest extends PlatformAwareTestBase {
     }
 
     private Map<String, Object> getTestInputData() {
+        return getTestInputData(null);
+    }
+
+    private Map<String, Object> getTestInputData(final Map<String, Object> override) {
         final HashMap<String, Object> data = new HashMap<>();
         data.put("project.version", "1.0.0-codestart");
         data.put("quarkus.platform.groupId", getPlatformDescriptor().getBomGroupId());
@@ -38,13 +42,15 @@ class CodestartProjectTest extends PlatformAwareTestBase {
         data.put("quarkus.plugin.groupId", "io.quarkus");
         data.put("quarkus.plugin.artifactId", "quarkus-maven-plugin");
         data.put("quarkus.plugin.version", "1.5.2.Final");
+        if(override != null)
+            data.putAll(override);
         return data;
     }
 
     @Test
     void loadDefaultCodestartsTest() throws IOException {
         final Collection<Codestart> codestarts = CodestartLoader.loadDefaultCodestarts(getPlatformDescriptor());
-        assertThat(codestarts).hasSize(9);
+        assertThat(codestarts).hasSize(10);
     }
 
     @Test
@@ -81,5 +87,35 @@ class CodestartProjectTest extends PlatformAwareTestBase {
         final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), extensions,
             true, getTestInputData()));
         Codestarts.generateProject(codestartProject, projectPath.resolve("maven-resteasy-scala"));
+    }
+
+    @Test
+    void generateCodestartProjectGradleResteasyJava() throws IOException {
+        final List<AppArtifactKey> extensions = Arrays.asList(AppArtifactKey.fromString("io.quarkus:quarkus-resteasy"));
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), extensions,
+            true, getTestInputData(Collections.singletonMap("buildtool.name", "gradle"))));
+        Codestarts.generateProject(codestartProject, projectPath.resolve("gradle-resteasy-java"));
+    }
+
+    @Test
+    void generateCodestartProjectGradleResteasyKotlin() throws IOException {
+        final List<AppArtifactKey> extensions = Arrays.asList(
+            AppArtifactKey.fromString("io.quarkus:quarkus-resteasy"),
+            AppArtifactKey.fromString("io.quarkus:quarkus-kotlin")
+        );
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), extensions,
+            true, getTestInputData(Collections.singletonMap("buildtool.name", "gradle"))));
+        Codestarts.generateProject(codestartProject, projectPath.resolve("gradle-resteasy-kotlin"));
+    }
+
+    @Test
+    void generateCodestartProjectGradleResteasyScala() throws IOException {
+        final List<AppArtifactKey> extensions = Arrays.asList(
+            AppArtifactKey.fromString("io.quarkus:quarkus-resteasy"),
+            AppArtifactKey.fromString("io.quarkus:quarkus-scala")
+        );
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(), extensions,
+            true, getTestInputData(Collections.singletonMap("buildtool.name", "gradle"))));
+        Codestarts.generateProject(codestartProject, projectPath.resolve("gradle-resteasy-scala"));
     }
 }

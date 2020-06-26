@@ -11,8 +11,13 @@ spec:
       version.maven-compiler-plugin: 3.8.1
       version.maven-surefire-plugin: 2.22.1
     sharedData:
-      buildtool:
-        build-dir: target
+      buildtool.build-dir: target
+      buildtool.cmd.dev: ./mvnw compile quarkus:dev
+      buildtool.cmd.package: ./mvnw package
+      buildtool.cmd.package-uberjar:  ./mvnw package -PuberJar
+      buildtool.cmd.package-native: ./mvnw package -Pnative
+      buildtool.cmd.package-native-container: ./mvnw package -Pnative -Dquarkus.native.container-build=true
+      buildtool.guide: https://quarkus.io/guides/building-native-image
       gitignore: |
         #Maven
         target/
