@@ -41,16 +41,16 @@ final class CodestartLoader {
 
     static Collection<Codestart> loadCodestarts(final QuarkusPlatformDescriptor descriptor, final String directoryName)
             throws IOException {
-        return descriptor.loadResourcePath(directoryName, path -> toResourceNameWalker(directoryName, path))
-                .filter(n -> n.matches(".*/codestart\\.ya?ml$"))
-                .map(n -> {
-                    try {
-                        final CodestartSpec spec = mapper.readerFor(CodestartSpec.class)
-                                .readValue(descriptor.getTemplate(n));
-                        return new Codestart(n.replaceAll("/?codestart\\.ya?ml", ""), spec);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException("Failed to parse codestart spec: " + n, e);
-                    }
-                }).collect(Collectors.toList());
+        return descriptor.loadResourcePath(directoryName,
+                path -> toResourceNameWalker(directoryName, path).filter(n -> n.matches(".*/codestart\\.ya?ml$"))
+                        .map(n -> {
+                            try {
+                                final CodestartSpec spec = mapper.readerFor(CodestartSpec.class)
+                                        .readValue(descriptor.getTemplate(n));
+                                return new Codestart(n.replaceAll("/?codestart\\.ya?ml", ""), spec);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException("Failed to parse codestart spec: " + n, e);
+                            }
+                        }).collect(Collectors.toList()));
     }
 }

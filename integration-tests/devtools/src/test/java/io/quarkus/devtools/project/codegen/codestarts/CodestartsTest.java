@@ -12,8 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.bootstrap.model.AppArtifactKey;
-import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.PlatformAwareTestBase;
+import io.quarkus.devtools.ProjectTestUtil;
 
 class CodestartsTest extends PlatformAwareTestBase {
 
@@ -88,5 +88,14 @@ class CodestartsTest extends PlatformAwareTestBase {
                 true, Collections.emptyMap()));
         assertThat(codestartProject.getCodestarts()).extracting(Codestart::getResourceName)
                 .containsExactlyInAnyOrder("codestarts/base/codestart/docker", "codestarts/extensions/resteasy-example");
+    }
+
+    @Test
+    void prepareProjectTestCommandMode() throws IOException {
+        final CodestartProject codestartProject = Codestarts.prepareProject(new CodestartInput(getPlatformDescriptor(),
+                Collections.emptyList(),
+                true, Collections.emptyMap()));
+        assertThat(codestartProject.getCodestarts()).extracting(Codestart::getResourceName)
+                .containsExactlyInAnyOrder("codestarts/base/codestart/docker", "codestarts/base/codestart/commandmode-example");
     }
 }

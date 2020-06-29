@@ -5,7 +5,6 @@ import java.util.Properties;
 
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.resolver.json.QuarkusJsonPlatformDescriptorResolver;
-import io.quarkus.platform.tools.ToolsConstants;
 
 public class PlatformAwareTestBase {
 
@@ -17,8 +16,7 @@ public class PlatformAwareTestBase {
 
     protected QuarkusPlatformDescriptor getPlatformDescriptor() {
         return platformDescr == null
-                ? platformDescr = QuarkusJsonPlatformDescriptorResolver.newInstance().resolveFromBom(ToolsConstants.IO_QUARKUS,
-                        "quarkus-bom", "999-SNAPSHOT")
+                ? platformDescr = QuarkusJsonPlatformDescriptorResolver.newInstance().resolveBundled()
                 : platformDescr;
     }
 

@@ -23,9 +23,12 @@ final class CodestartProcessor {
     static void processCodestart(final QuarkusPlatformDescriptor descriptor, final Codestart codestart,
             final String languageName, final Path targetDirectory, final Map<String, Object> data) {
         try {
-            descriptor.loadResourcePath(codestart.getResourceName(), p -> resolveDirectoriesToProcessAsStream(p, languageName))
-                    .forEach(p -> processCodestartDir(languageName, p, targetDirectory,
-                            CodestartData.mergeData(codestart, languageName, data)));
+            descriptor.loadResourcePath(codestart.getResourceName(), p -> {
+                resolveDirectoriesToProcessAsStream(p, languageName)
+                        .forEach(dirPath -> processCodestartDir(languageName, dirPath, targetDirectory,
+                                CodestartData.mergeData(codestart, languageName, data)));
+                return null;
+            });
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -56,7 +59,7 @@ final class CodestartProcessor {
                                 return;
                             } else {
                                 final String fileName = relativePath.getFileName().toString();
-                                final Path targetPath = targetProjectDirectory.resolve(relativePath);
+                                    final Path targetPath = targetProjectDirectory.resolve(relativePath.toString());
                                 if (fileName.contains(".part")) {
                                     // TODO we need some kind of PartCombiner interface with a "matcher"
                                     if (fileName.equals("pom.part.qute.xml")) {

@@ -20,8 +20,10 @@ public final class ResourceLoaders {
         }
         try {
             return new File(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new IOException("There were a problem while reading the resource dir " + name + " on the classpath");
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            throw new IOException(
+                    "There were a problem while reading the resource dir '" + name + "' on the classpath with url: '"
+                            + url.toString() + "'");
         }
     }
 

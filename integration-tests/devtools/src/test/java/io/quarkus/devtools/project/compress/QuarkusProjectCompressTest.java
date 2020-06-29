@@ -18,9 +18,9 @@ import java.util.zip.ZipInputStream;
 
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.devtools.PlatformAwareTestBase;
 import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.CreateProject;
-import io.quarkus.devtools.PlatformAwareTestBase;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 

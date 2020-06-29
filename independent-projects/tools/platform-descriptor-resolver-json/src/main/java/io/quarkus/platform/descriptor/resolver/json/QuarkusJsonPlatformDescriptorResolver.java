@@ -451,10 +451,10 @@ public class QuarkusJsonPlatformDescriptorResolver {
         // check whether the quarkus-platform-descriptor-json used in the platform is already on the classpath
         final String pomPropsPath = "META-INF/maven/" + ToolsConstants.IO_QUARKUS + "/" + QUARKUS_PLATFORM_DESCRIPTOR_JSON
                 + "/pom.properties";
-        final InputStream is = getCpResourceAsStream(pomPropsPath);
-        if (is != null) {
+        final URL url = Thread.currentThread().getContextClassLoader().getResource(pomPropsPath);
+        if (url != null && !url.toString().startsWith("jar:")) {
             final Properties props = new Properties();
-            try {
+            try (InputStream is = getCpResourceAsStream(pomPropsPath)) {
                 props.load(is);
             } catch (IOException e) {
                 throw new PlatformDescriptorLoadingException("Failed to load " + pomPropsPath + " from the classpath", e);

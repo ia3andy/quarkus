@@ -16,8 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.bootstrap.model.AppArtifactKey;
-import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.PlatformAwareTestBase;
+import io.quarkus.devtools.ProjectTestUtil;
 
 class CodestartProjectTest extends PlatformAwareTestBase {
 
