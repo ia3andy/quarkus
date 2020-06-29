@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.quarkus.bootstrap.model.AppArtifactCoords;
 import io.quarkus.bootstrap.model.AppArtifactKey;
+import io.quarkus.devtools.MockedPlatformAwareTestBase;
 import io.quarkus.devtools.ProjectTestUtil;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.project.QuarkusProject;
@@ -28,7 +29,7 @@ import org.apache.maven.model.Model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ListExtensionsTest extends PlatformAwareTestBase {
+public class ListExtensionsTest extends MockedPlatformAwareTestBase {
 
     @Test
     public void listWithBom() throws Exception {

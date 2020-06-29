@@ -67,7 +67,7 @@ public class TestDominatingQuarkusPlatformDescriptor implements QuarkusPlatformD
 
     @Override
     public String getTemplate(String name) {
-        if ("templates/basic-rest/java/pom.xml-template.ftl".equals(name)) {
+        if ("dir/some-other-file.template".equals(name)) {
             return "dominating pom.xml template";
         }
         return null;

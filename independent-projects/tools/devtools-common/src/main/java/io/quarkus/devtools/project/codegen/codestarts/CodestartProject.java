@@ -21,7 +21,7 @@ final class CodestartProject {
     private final CodestartInput codestartInput;
 
     CodestartProject(Codestart project, Codestart buildTool, Codestart language, Codestart config, List<Codestart> codestarts,
-                     CodestartInput codestartInput) {
+            CodestartInput codestartInput) {
         this.project = project;
         this.buildTool = buildTool;
         this.language = language;
@@ -78,15 +78,17 @@ final class CodestartProject {
 
     public Map<String, Object> getDepsData() {
         final Map<String, List<CodestartSpec.CodestartDep>> depsData = new HashMap<>();
-        final List<CodestartSpec.CodestartDep> extensionsAsDeps = codestartInput.getExtensions().stream().map(k -> k.getGroupId() + ":" + k.getArtifactId()).map(CodestartSpec.CodestartDep::new).collect(Collectors.toList());
+        final List<CodestartSpec.CodestartDep> extensionsAsDeps = codestartInput.getExtensions().stream()
+                .map(k -> k.getGroupId() + ":" + k.getArtifactId()).map(CodestartSpec.CodestartDep::new)
+                .collect(Collectors.toList());
         depsData.put("dependencies", new ArrayList<>(extensionsAsDeps));
         depsData.put("testDependencies", new ArrayList<>());
         getAllCodestartsStream()
-            .flatMap(s -> Stream.of(s.getBaseLanguageSpec(), s.getLanguageSpec(getLanguageName())))
-            .forEach(d -> {
-                depsData.get("dependencies").addAll(d.getDependencies());
-                depsData.get("testDependencies").addAll(d.getTestDependencies());
-            });
+                .flatMap(s -> Stream.of(s.getBaseLanguageSpec(), s.getLanguageSpec(getLanguageName())))
+                .forEach(d -> {
+                    depsData.get("dependencies").addAll(d.getDependencies());
+                    depsData.get("testDependencies").addAll(d.getTestDependencies());
+                });
         return Collections.unmodifiableMap(depsData);
     }
 }

@@ -1,9 +1,0 @@
----
-name: quarkus
-type: project
-default: true
-spec:
-  base:
-    sharedData:
-      project.groupId: org.acme
-      project.artifactId: quarkus-project

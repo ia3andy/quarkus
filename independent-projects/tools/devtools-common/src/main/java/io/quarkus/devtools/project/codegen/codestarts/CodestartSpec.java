@@ -29,11 +29,11 @@ final class CodestartSpec {
 
     @JsonCreator
     public CodestartSpec(@JsonProperty(value = "name", required = true) String name,
-                         @JsonProperty(value = "ref") String ref,
-                         @JsonProperty(value = "type") Type type,
-                         @JsonProperty("default") boolean isDefault,
-                         @JsonProperty("example") boolean isExample,
-                         @JsonProperty("spec") Map<String, LanguageSpec> languagesSpec) {
+            @JsonProperty(value = "ref") String ref,
+            @JsonProperty(value = "type") Type type,
+            @JsonProperty("default") boolean isDefault,
+            @JsonProperty("example") boolean isExample,
+            @JsonProperty("spec") Map<String, LanguageSpec> languagesSpec) {
         this.name = requireNonNull(name, "name is required");
         this.ref = ref != null ? ref : name;
         this.type = type != null ? type : Type.CODESTART;
@@ -69,23 +69,20 @@ final class CodestartSpec {
     public static final class LanguageSpec {
         private final Map<String, Object> localData;
         private final Map<String, Object> sharedData;
-        private final Map<String, String> qutePartials;
         private final List<CodestartDep> dependencies;
         private final List<CodestartDep> testDependencies;
 
         public LanguageSpec() {
-            this(null, null, null, null, null);
+            this(null, null, null, null);
         }
 
         @JsonCreator
-        public LanguageSpec(@JsonProperty("localData") Map<String, Object> localData,
-                            @JsonProperty("sharedData") Map<String, Object> sharedData,
-                            @JsonProperty("qutePartials") Map<String, String> qutePartials,
-                            @JsonProperty("dependencies") List<CodestartDep> dependencies,
-                            @JsonProperty("testDependencies") List<CodestartDep> testDependencies) {
+        public LanguageSpec(@JsonProperty("local-data") Map<String, Object> localData,
+                @JsonProperty("shared-data") Map<String, Object> sharedData,
+                @JsonProperty("dependencies") List<CodestartDep> dependencies,
+                @JsonProperty("test-dependencies") List<CodestartDep> testDependencies) {
             this.localData = localData != null ? localData : Collections.emptyMap();
             this.sharedData = sharedData != null ? sharedData : Collections.emptyMap();
-            this.qutePartials = qutePartials != null ? qutePartials : Collections.emptyMap();;
             this.dependencies = dependencies != null ? dependencies : Collections.emptyList();
             this.testDependencies = testDependencies != null ? testDependencies : Collections.emptyList();
         }
@@ -98,10 +95,6 @@ final class CodestartSpec {
             return sharedData;
         }
 
-        public Map<String, String> getQutePartials() {
-            return qutePartials;
-        }
-
         public List<CodestartDep> getDependencies() {
             return dependencies;
         }
@@ -110,6 +103,7 @@ final class CodestartSpec {
             return testDependencies;
         }
     }
+
     public static class CodestartDep extends HashMap<String, String> {
         public CodestartDep() {
         }
@@ -117,12 +111,12 @@ final class CodestartSpec {
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public CodestartDep(final String expression) {
             final String[] split = expression.split(":");
-            if(split.length < 2 || split.length > 3) {
+            if (split.length < 2 || split.length > 3) {
                 throw new IllegalArgumentException("Invalid CodestartDep expression: " + expression);
             }
             this.put("groupId", split[0]);
             this.put("artifactId", split[1]);
-            if(split.length == 3) {
+            if (split.length == 3) {
                 this.put("version", split[2]);
             }
         }
@@ -144,7 +138,6 @@ final class CodestartSpec {
             final String version = Optional.ofNullable(getVersion()).map(v -> ":" + v).orElse("");
             return getGroupId() + ":" + getArtifactId() + version;
         }
-
 
     }
 }

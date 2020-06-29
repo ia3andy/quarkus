@@ -1,15 +1,5 @@
 package io.quarkus.devtools.project.codegen.codestarts;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import io.quarkus.qute.Engine;
 import io.quarkus.qute.Expression;
 import io.quarkus.qute.ResultMapper;
@@ -17,25 +7,34 @@ import io.quarkus.qute.Results;
 import io.quarkus.qute.TemplateLocator;
 import io.quarkus.qute.TemplateNode;
 import io.quarkus.qute.Variant;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 final class CodestartQute {
 
-    private CodestartQute() {}
+    private CodestartQute() {
+    }
 
     public static Engine newEngine() {
         return Engine.builder().addDefaults()
-            .addResultMapper(new MissingValueMapper())
-            .build();
+                .addResultMapper(new MissingValueMapper())
+                .build();
     }
 
     public static String processQuteContent(Path path, String languageName, Map<String, Object> data) throws IOException {
         final String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         final Object preparedData = prepareData(data);
         final Engine engine = Engine.builder().addDefaults()
-            .addResultMapper(new MissingValueMapper())
-            .addLocator(id -> findIncludeTemplate(path, languageName, id).map(IncludeTemplateLocation::new))
-            .build();
+                .addResultMapper(new MissingValueMapper())
+                .addLocator(id -> findIncludeTemplate(path, languageName, id).map(IncludeTemplateLocation::new))
+                .build();
         return engine.parse(content).render(preparedData);
     }
 
@@ -44,11 +43,11 @@ final class CodestartQute {
         final Path codestartPath = path.getParent().getParent();
         final String includeFileName = name + ".include.qute";
         final Path languageIncludeTemplate = codestartPath.resolve(languageName + "/" + includeFileName);
-        if(Files.isRegularFile(languageIncludeTemplate)) {
+        if (Files.isRegularFile(languageIncludeTemplate)) {
             return Optional.of(languageIncludeTemplate);
         }
         final Path baseIncludeTemplate = codestartPath.resolve("base/" + includeFileName);
-        if(Files.isRegularFile(baseIncludeTemplate)) {
+        if (Files.isRegularFile(baseIncludeTemplate)) {
             return Optional.of(baseIncludeTemplate);
         }
         return Optional.empty();
@@ -75,13 +74,12 @@ final class CodestartQute {
                 return;
             }
 
-
             final Object value = current.get(part);
             if (value == null) {
                 final HashMap<String, Object> map = new HashMap<>();
                 current.put(part, map);
                 current = map;
-            } else if(value instanceof Map) {
+            } else if (value instanceof Map) {
                 current = (Map<String, Object>) value;
             } else {
                 throw new IllegalStateException("Conflicting data types for key '" + key + "'");

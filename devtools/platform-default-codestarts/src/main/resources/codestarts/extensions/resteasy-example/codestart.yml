@@ -1,0 +1,11 @@
+---
+name: resteasy-example
+ref: resteasy
+example: true
+spec:
+  base:
+    local-data:
+      rest.path: "/hello"
+      rest.response: "hello"
+    test-dependencies:
+      - io.rest-assured:rest-assured

@@ -2,6 +2,7 @@ package io.quarkus.devtools.commands;
 
 import static java.util.Arrays.asList;
 
+import io.quarkus.devtools.MockedPlatformAwareTestBase;
 import io.quarkus.devtools.commands.data.QuarkusCommandException;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-abstract class AbstractRemoveExtensionsTest<T> extends PlatformAwareTestBase {
+abstract class AbstractRemoveExtensionsTest<T> extends MockedPlatformAwareTestBase {
 
     private final Path projectPath = Paths.get("target/extensions-test");
 

@@ -24,7 +24,7 @@ public class DirectoryResourceLoader implements ResourceLoader {
         } else {
             path = dir.resolve(name);
         }
-        if (Files.exists(path)) {
+        if (!Files.exists(path)) {
             throw new IOException("Failed to locate " + name + " dir on the classpath");
         }
         return consumer.consume(path);
