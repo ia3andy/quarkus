@@ -16,27 +16,27 @@ public final class CodestartSpec {
 
     enum Type {
         LANGUAGE(true, 1),
-        BUILDTOOL(true, 2),
-        PROJECT(true, 3),
+        PROJECT(true, 2),
+        BUILDTOOL(true, 3),
         CONFIG(true, 4),
         TOOLING(false, 5),
         CODE(false, 6),
         ;
 
         private final boolean base;
-        private final int order;
+        private final int processingOrder;
 
-        Type(boolean base, int order) {
+        Type(boolean base, int processingOrder) {
             this.base = base;
-            this.order = order;
+            this.processingOrder = processingOrder;
         }
 
         public boolean isBase() {
             return base;
         }
 
-        public int getOrder() {
-            return order;
+        public int getProcessingOrder() {
+            return processingOrder;
         }
     }
 

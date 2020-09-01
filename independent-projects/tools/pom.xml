@@ -57,6 +57,7 @@
     </properties>
     <modules>
         <module>platform-descriptor-api</module>
+        <module>message-writer</module>
         <module>codestarts</module>
         <module>devtools-common</module>
         <module>utilities</module>

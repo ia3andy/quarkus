@@ -4,7 +4,6 @@ import static io.quarkus.devtools.codestarts.CodestartData.buildCodestartProject
 import static io.quarkus.devtools.codestarts.CodestartData.buildDependenciesData;
 
 import io.quarkus.devtools.codestarts.CodestartSpec.Type;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,7 +26,7 @@ public final class CodestartProject {
 
     static CodestartProject of(CodestartInput codestartInput, List<Codestart> codestarts) {
         final List<Codestart> codestartsInOrder = codestarts.stream()
-                .sorted(Comparator.comparingInt(Codestart::getTypeOrder).thenComparing(Codestart::getName))
+                .sorted(Codestart.PROCESSING_ORDER)
                 .collect(Collectors.toList());
         return new CodestartProject(codestartInput, codestartsInOrder);
     }
@@ -54,6 +53,7 @@ public final class CodestartProject {
 
     public Map<String, Object> getSharedData() {
         final Stream<Map<String, Object>> codestartsGlobal = getCodestarts().stream()
+                .sorted(Codestart.SHARED_DATA_MERGE_ORDER)
                 .map(c -> c.getSharedData(getLanguageName()));
         return NestedMaps.deepMerge(Stream.concat(codestartsGlobal, Stream.of(getCodestartInput().getData())));
     }
