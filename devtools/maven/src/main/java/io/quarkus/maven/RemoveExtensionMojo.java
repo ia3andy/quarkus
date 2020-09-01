@@ -13,7 +13,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import io.quarkus.devtools.commands.RemoveExtensions;
 import io.quarkus.devtools.commands.data.QuarkusCommandOutcome;
 import io.quarkus.devtools.project.QuarkusProject;
-import io.quarkus.platform.tools.MessageWriter;
+import io.quarkus.devtools.MessageWriter;
 
 /**
  * Allow removing an extension from an existing pom.xml file.

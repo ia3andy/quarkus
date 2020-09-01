@@ -2,6 +2,8 @@ package io.quarkus.devtools.codestarts;
 
 import static io.quarkus.devtools.codestarts.Codestart.BASE_LANGUAGE;
 
+import io.quarkus.devtools.MessageIcons;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.devtools.codestarts.reader.CodestartFile;
 import io.quarkus.devtools.codestarts.reader.CodestartFileReader;
 import io.quarkus.devtools.codestarts.strategy.CodestartFileStrategy;
@@ -25,6 +27,7 @@ import java.util.stream.Stream;
 
 final class CodestartProcessor {
 
+    private final MessageWriter log;
     private final CodestartResourceLoader resourceLoader;
     private final String languageName;
     private final Path targetDirectory;
@@ -32,11 +35,13 @@ final class CodestartProcessor {
     private final Map<String, Object> data;
     private final Map<String, List<CodestartFile>> files = new LinkedHashMap<>();
 
-    CodestartProcessor(final CodestartResourceLoader resourceLoader,
-            final String languageName,
-            final Path targetDirectory,
-            List<CodestartFileStrategy> strategies,
-            final Map<String, Object> data) {
+    CodestartProcessor(final MessageWriter log,
+                       final CodestartResourceLoader resourceLoader,
+                       final String languageName,
+                       final Path targetDirectory,
+                       final List<CodestartFileStrategy> strategies,
+                       final Map<String, Object> data) {
+        this.log = log;
         this.resourceLoader = resourceLoader;
         this.languageName = languageName;
         this.targetDirectory = targetDirectory;
@@ -45,16 +50,19 @@ final class CodestartProcessor {
     }
 
     void process(final Codestart codestart) throws IOException {
+        log.debug(() -> "Processing codestart '" + codestart.getName() + "'...");
         addBuiltinData();
         resourceLoader.loadResourceAsPath(codestart.getResourceDir(), p -> {
             final Path baseDir = p.resolve(BASE_LANGUAGE);
             final Path languageDir = p.resolve(languageName);
+            final Map<String, Object> finalData = CodestartData.buildCodestartData(codestart, languageName, data);
+            log.debug(() -> "codestart data: " + finalData.toString());
             Stream.of(baseDir, languageDir)
                     .filter(Files::isDirectory)
-                    .forEach(dirPath -> processCodestartDir(dirPath,
-                            CodestartData.buildCodestartData(codestart, languageName, data)));
+                    .forEach(dirPath -> processCodestartDir(dirPath, finalData));
             return null;
         });
+        log.info(MessageIcons.OK_ICON + " codestart '" + codestart.getName() + "' processed.");
     }
 
     void addBuiltinData() {
@@ -63,10 +71,12 @@ final class CodestartProcessor {
     }
 
     void processCodestartDir(final Path sourceDirectory, final Map<String, Object> finalData) {
+        log.debug(() -> "processing dir: " + sourceDirectory.toString());
         final Collection<Path> sources = findSources(sourceDirectory);
         for (Path sourcePath : sources) {
             final Path relativeSourcePath = sourceDirectory.relativize(sourcePath);
             if (!Files.isDirectory(sourcePath)) {
+                log.debug(() -> "found source file: " + relativeSourcePath.toString());
                 final String sourceFileName = sourcePath.getFileName().toString();
 
                 // Read files to process
@@ -75,7 +85,10 @@ final class CodestartProcessor {
                         .findFirst();
                 final CodestartFileReader reader = possibleReader.orElse(CodestartFileReader.DEFAULT);
 
+                log.debug(() -> "using reader: " + reader.getClass().getName());
+
                 final String targetFileName = reader.cleanFileName(sourceFileName);
+
                 final Path relativeTargetPath = relativeSourcePath.getNameCount() > 1
                         ? relativeSourcePath.getParent().resolve(targetFileName)
                         : Paths.get(targetFileName);
@@ -85,17 +98,21 @@ final class CodestartProcessor {
                     final String processedRelativeTargetPath = CodestartPathProcessor.process(relativeTargetPath.toString(),
                             finalData);
                     if (!possibleReader.isPresent() && !hasFileStrategyHandler) {
+
                         final Path targetPath = targetDirectory.resolve(processedRelativeTargetPath);
+                        log.debug(() -> "copy static file: " + sourcePath.toString() + "->" + targetPath.toString());
                         getSelectedDefaultStrategy().copyStaticFile(sourcePath, targetPath);
                         continue;
                     }
                     final Optional<String> content = reader.read(sourceDirectory, relativeSourcePath,
                             languageName, finalData);
                     if (content.isPresent()) {
-
+                        log.debug(() -> "adding file to processing stack: " + sourcePath.toString());
                         this.files.putIfAbsent(processedRelativeTargetPath, new ArrayList<>());
                         this.files.get(processedRelativeTargetPath)
                                 .add(new CodestartFile(processedRelativeTargetPath, content.get()));
+                    } else {
+                        log.debug(() -> "ignoring file: " + sourcePath.toString());
                     }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
@@ -134,8 +151,9 @@ final class CodestartProcessor {
     public void writeFiles() throws IOException {
         for (Map.Entry<String, List<CodestartFile>> e : files.entrySet()) {
             final String relativePath = e.getKey();
-            getStrategy(relativePath).orElse(getSelectedDefaultStrategy())
-                    .process(targetDirectory, relativePath, e.getValue(), data);
+            final CodestartFileStrategyHandler strategy = getStrategy(relativePath).orElse(getSelectedDefaultStrategy());
+            log.debug(() -> "processing file: " + relativePath + " with strategy: " + strategy.name());
+            strategy.process(targetDirectory, relativePath, e.getValue(), data);
         }
     }
 

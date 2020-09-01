@@ -4,6 +4,8 @@ import static io.quarkus.devtools.codestarts.CodestartLoader.loadAllCodestarts;
 import static io.quarkus.devtools.codestarts.CodestartProcessor.buildStrategies;
 import static io.quarkus.devtools.codestarts.CodestartSpec.Type.LANGUAGE;
 
+import io.quarkus.devtools.MessageIcons;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.devtools.codestarts.strategy.CodestartFileStrategy;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +40,7 @@ public class Codestarts {
     }
 
     public static void generateProject(final CodestartProject codestartProject, final Path targetDirectory) throws IOException {
-
+        final MessageWriter log = codestartProject.getCodestartInput().log();
         final String languageName = codestartProject.getLanguageName();
 
         // Processing data
@@ -47,16 +49,24 @@ public class Codestarts {
                 codestartProject.getDepsData(),
                 codestartProject.getCodestartProjectData()));
 
+        log.debug(() -> "Processed shared-data: " + data.toString());
+
         final Codestart projectCodestart = codestartProject.getRequiredCodestart(CodestartSpec.Type.PROJECT);
+
+
         final List<CodestartFileStrategy> strategies = buildStrategies(mergeStrategies(codestartProject));
 
-        CodestartProcessor processor = new CodestartProcessor(codestartProject.getCodestartInput().getResourceLoader(),
+        log.debug(() -> "File strategies: " + strategies.toString());
+
+        CodestartProcessor processor = new CodestartProcessor(log, codestartProject.getCodestartInput().getResourceLoader(),
                 languageName, targetDirectory, strategies, data);
         processor.checkTargetDir();
         for (Codestart codestart : codestartProject.getCodestarts()) {
             processor.process(codestart);
         }
         processor.writeFiles();
+
+        log.info(codestartProject.getCodestarts().stream().map(c -> MessageIcons.OK_ICON + " Applied codestart " + c.getName() + " (" + c.getType() + ")").collect(Collectors.joining(", ")));
     }
 
     private static Map<String, String> mergeStrategies(CodestartProject codestartProject) {

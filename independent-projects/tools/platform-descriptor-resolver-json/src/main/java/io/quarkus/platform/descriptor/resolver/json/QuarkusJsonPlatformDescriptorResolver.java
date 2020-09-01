@@ -19,8 +19,8 @@ import io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorL
 import io.quarkus.platform.descriptor.loader.json.QuarkusJsonPlatformDescriptorLoaderContext;
 import io.quarkus.platform.descriptor.loader.json.ResourceLoader;
 import io.quarkus.platform.descriptor.loader.json.ZipResourceLoader;
-import io.quarkus.platform.tools.DefaultMessageWriter;
-import io.quarkus.platform.tools.MessageWriter;
+import io.quarkus.devtools.DefaultMessageWriter;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.platform.tools.ToolsConstants;
 import io.quarkus.platform.tools.ToolsUtils;
 import java.io.BufferedReader;

@@ -1,6 +1,9 @@
 package io.quarkus.devtools.codestarts;
 
 import io.quarkus.bootstrap.model.AppArtifactKey;
+import io.quarkus.devtools.DefaultMessageWriter;
+import io.quarkus.devtools.MessageWriter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +16,7 @@ public class CodestartInputBuilder {
     Collection<AppArtifactKey> dependencies = new ArrayList<>();
     Collection<String> codestarts = new ArrayList<>();
     Map<String, Object> data = new HashMap<>();
+    MessageWriter messageWriter = new DefaultMessageWriter();
 
     CodestartInputBuilder(CodestartResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -44,6 +48,11 @@ public class CodestartInputBuilder {
 
     public CodestartInputBuilder putData(String key, Object value) {
         this.data.put(key, value);
+        return this;
+    }
+
+    public CodestartInputBuilder messageWriter(MessageWriter messageWriter) {
+        this.messageWriter = messageWriter;
         return this;
     }
 

@@ -2,10 +2,10 @@ package io.quarkus.devtools.commands.data;
 
 import static java.util.Objects.requireNonNull;
 
+import io.quarkus.devtools.DefaultMessageWriter;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.devtools.project.QuarkusProject;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
-import io.quarkus.platform.tools.DefaultMessageWriter;
-import io.quarkus.platform.tools.MessageWriter;
 import java.util.HashMap;
 import java.util.Map;
 

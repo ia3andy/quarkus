@@ -1,6 +1,10 @@
-package io.quarkus.platform.tools;
+package io.quarkus.devtools;
+
+import java.util.function.Supplier;
 
 public interface MessageWriter {
+
+    MessageWriter DEFAULT = new DefaultMessageWriter();
 
     default void info(String format, Object... args) {
         info(String.format(format, args));
@@ -24,6 +28,12 @@ public interface MessageWriter {
     }
 
     void debug(String msg);
+
+    default void debug(Supplier<String> messageSupplier) {
+        if (!isDebugEnabled()) {
+            debug(messageSupplier.get());
+        }
+    }
 
     default void warn(String format, Object... args) {
         warn(String.format(format, args));
