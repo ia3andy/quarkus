@@ -1,8 +1,8 @@
 package io.quarkus.platform.descriptor.loader.json;
 
+import io.quarkus.devtools.DefaultMessageWriter;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.platform.descriptor.loader.QuarkusPlatformDescriptorLoaderContext;
-import io.quarkus.platform.tools.DefaultMessageWriter;
-import io.quarkus.platform.tools.MessageWriter;
 import java.io.InputStream;
 import java.util.function.Function;
 

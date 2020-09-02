@@ -1,4 +1,7 @@
-package io.quarkus.platform.tools;
+package io.quarkus.devtools;
+
+import static io.quarkus.devtools.MessageIcons.ERROR_ICON;
+import static io.quarkus.devtools.MessageIcons.WARN_ICON;
 
 import java.io.PrintStream;
 
@@ -32,7 +35,7 @@ public class DefaultMessageWriter implements MessageWriter {
 
     @Override
     public void error(String msg) {
-        out.println(msg);
+        out.println(ERROR_ICON + " " + msg);
     }
 
     @Override
@@ -45,6 +48,6 @@ public class DefaultMessageWriter implements MessageWriter {
 
     @Override
     public void warn(String msg) {
-        out.println("WARN: " + msg);
+        out.println(WARN_ICON + " " + msg);
     }
 }

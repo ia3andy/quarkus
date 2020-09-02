@@ -30,7 +30,7 @@ import io.quarkus.devtools.project.QuarkusProject;
 import io.quarkus.platform.descriptor.CombinedQuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.QuarkusPlatformDescriptor;
 import io.quarkus.platform.descriptor.resolver.json.QuarkusJsonPlatformDescriptorResolver;
-import io.quarkus.platform.tools.MessageWriter;
+import io.quarkus.devtools.MessageWriter;
 import io.quarkus.platform.tools.ToolsConstants;
 import io.quarkus.platform.tools.maven.MojoMessageWriter;
 
