@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.quarkus.devtools.testing.codestarts.QuarkusCodestartTest;
 import io.quarkus.maven.ArtifactKey;
 
-public class HibernateOrmCodestartTest {
+public class HibernateOrmCodestartBuildIT {
 
     @RegisterExtension
     public static QuarkusCodestartTest codestartTest = QuarkusCodestartTest.builder()
@@ -24,8 +24,7 @@ public class HibernateOrmCodestartTest {
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "build-projects", matches = "true")
-    void buildAllProjectsForLocalUse() throws Throwable {
+    void buildAllProjects() throws Throwable {
         codestartTest.buildAllProjects();
     }
 }
